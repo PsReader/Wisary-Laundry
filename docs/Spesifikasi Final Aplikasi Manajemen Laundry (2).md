@@ -277,7 +277,7 @@ Super Admin dapat mengubah harga final suatu pesanan secara manual. Setiap perub
 - Nama Super Admin.
 - Tanggal dan waktu perubahan.
 
-Staf dapat mengubah detail pesanan dalam operasional toko, termasuk data pelanggan, layanan, jumlah atau berat, status laundry, dan harga final pada catatan transaksi. Perubahan harga final wajib mencatat alasan, pengguna, serta waktu perubahan.
+Staf dapat mengubah detail pesanan dalam operasional toko, termasuk data pelanggan, layanan, jumlah atau berat, dan status laundry.
 
 Super Admin memiliki seluruh hak Staf dan juga dapat menentukan harga layanan, menambah atau menonaktifkan layanan, mengelola akun Staf, serta mengedit seluruh data. Hak Super Admin-only tetap diperlukan untuk pengelolaan layanan utama, akun, dan tindakan administratif.
 
@@ -497,7 +497,7 @@ Semua keputusan utama berikut telah ditetapkan:
 - Status serah terima adalah Sudah Diambil atau Sudah Diantar dan menjadi penanda akhir proses.
 - Layanan memiliki CRUD.
 - Harga lama tetap berlaku untuk pesanan lama.
-- Staf dapat mengubah detail transaksi operasional dan harga final dengan alasan yang dicatat.
+- Staf dapat mengubah detail transaksi operasional. Penyesuaian harga final adalah hak Super Admin saja dan alasannya wajib dicatat.
 - Super Admin dapat mengelola harga default, layanan, akun Staf, dan seluruh data.
 - Pembatalan memerlukan alasan, tidak menghapus data, dan dapat dipulihkan oleh Super Admin.
 - Pembayaran sebagian, refund, delivery gagal, dan audit aktivitas memiliki riwayat tersendiri.

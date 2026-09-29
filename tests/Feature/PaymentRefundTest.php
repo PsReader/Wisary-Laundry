@@ -235,4 +235,29 @@ class PaymentRefundTest extends TestCase
             ->assertSee('Refund '.format_rupiah(10000))
             ->assertSee('9 September 2026 · 10.00 WIB');
     }
+
+    public function test_cancelled_order_rejects_payment_but_still_allows_refund(): void
+    {
+        $order = Order::factory()->cancelled()->create(['total_price' => 50000]);
+
+        try {
+            $order->recordPayment(50000, Payment::METHOD_TUNAI);
+            $this->fail('Expected ValidationException was not thrown.');
+        } catch (ValidationException $e) {
+            $this->assertArrayHasKey('amount', $e->errors());
+        }
+
+        $this->assertSame(0, $order->payments()->count());
+
+        // Pengembalian dana pada pesanan batal tetap sah, jadi pesanan ini
+        // butuh pembayaran lebih dulu sebelum bisa direfund.
+        $order->update(['status' => Order::STATUS_DITERIMA]);
+        $order->recordPayment(50000, Payment::METHOD_TUNAI);
+        $order->cancel('Pelanggan batal order');
+
+        $order->recordRefund(50000, reason: 'Pengembalian pesanan batal', method: Payment::METHOD_TUNAI);
+
+        $this->assertSame(Order::PAYMENT_DIKEMBALIKAN, $order->fresh()->payment_status);
+        $this->assertSame(1, $order->refunds()->count());
+    }
 }

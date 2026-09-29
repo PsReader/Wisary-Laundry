@@ -289,11 +289,13 @@ Menerapkan aturan harga kilogram, unit, minimum empat kilogram, pembulatan, dan 
 - [x] Menghitung subtotal tiap detail layanan.
 - [x] Menghitung total pesanan.
 - [x] Mengizinkan beberapa layanan dalam satu pesanan.
-- [x] Mengizinkan Staf mengubah harga final transaksi dengan alasan.
+- [x] Mengizinkan Super Admin mengubah harga final transaksi dengan alasan.
 - [x] Menyimpan riwayat perubahan harga final.
 - [x] Menjaga harga pesanan lama ketika harga default layanan berubah.
 
 > **Ratifikasi 09 September 2026:** Penyesuaian harga final sengaja dibuat sebagai *pencatatan murni* (aplikasi hanya mencatat, bukan menghitung). Harga baru diterima apa adanya; alasan tetap wajib. UI penyesuaian dibangun pada Milestone 14 (halaman detail pesanan).
+
+> **Ratifikasi 29 September 2026:** Item di atas dikoreksi dari "Staf" menjadi "Super Admin". Kode (`OrderPolicy::adjustPrice`), Design System, dan `AuditLogTest` sudah membatasi penyesuaian harga final hanya untuk Super Admin; dua baris Spesifikasi yang sebelumnya memberi hak ini kepada Staf diselaraskan ke implementasi. Rujukan pelanggan, layanan, jumlah/berat, dan status laundry tetap milik Staf.
 
 ### Kriteria penerimaan
 

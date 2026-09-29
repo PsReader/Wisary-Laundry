@@ -281,4 +281,28 @@ class OrderHandoverTest extends TestCase
             'handover_status' => Order::HANDOVER_SUDAH_DIAMBIL,
         ]);
     }
+
+    public function test_handover_cannot_be_recorded_twice(): void
+    {
+        $order = Order::factory()->handedOver(OrderHandoverHistory::ACTION_SUDAH_DIAMBIL)->create();
+
+        try {
+            $order->recordHandover(OrderHandoverHistory::ACTION_SUDAH_DIAMBIL);
+            $this->fail('Expected ValidationException was not thrown.');
+        } catch (ValidationException $e) {
+            $this->assertArrayHasKey('handover_action', $e->errors());
+        }
+
+        // `gagal` tidak mengubah handover_status, jadi tanpa penjaga status ini
+        // pesanan yang sudah diserahkan masih bisa dicatat gagal.
+        try {
+            $order->recordHandover(OrderHandoverHistory::ACTION_GAGAL, failureReason: 'Pelanggan tidak ada');
+            $this->fail('Expected ValidationException was not thrown.');
+        } catch (ValidationException $e) {
+            $this->assertArrayHasKey('handover_action', $e->errors());
+        }
+
+        $this->assertSame(0, $order->handoverHistories()->count());
+        $this->assertSame(Order::HANDOVER_SUDAH_DIAMBIL, $order->fresh()->handover_status);
+    }
 }

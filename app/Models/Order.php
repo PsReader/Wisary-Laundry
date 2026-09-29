@@ -177,6 +177,14 @@ class Order extends Model
             ]);
         }
 
+        // Pesanan batal tidak bisa ditagih. Refund tetap diizinkan pada pesanan
+        // batal karena itu justru tujuan pengembalian dana.
+        if ($this->status === self::STATUS_DIBATALKAN) {
+            throw ValidationException::withMessages([
+                'amount' => 'Pesanan yang sudah dibatalkan tidak dapat menerima pembayaran.',
+            ]);
+        }
+
         if (! in_array($paymentMethod, Payment::methods(), true)) {
             throw ValidationException::withMessages([
                 'payment_method' => 'Metode pembayaran tidak valid.',
@@ -372,6 +380,18 @@ class Order extends Model
         if ($this->status !== self::STATUS_SIAP_DIAMBIL) {
             throw ValidationException::withMessages([
                 'handover_action' => 'Pesanan harus berstatus Siap Diambil sebelum diserahterimakan.',
+            ]);
+        }
+
+        // Setelah serah terima berhasil tidak ada aksi lanjutan. Aksi `gagal`
+        // tidak mengubah handover_status, jadi tanpa penjaga ini pesanan yang
+        // sudah diserahkan masih bisa dicatat gagal atau diambil dua kali.
+        if (in_array($this->handover_status, [
+            self::HANDOVER_SUDAH_DIAMBIL,
+            self::HANDOVER_SUDAH_DIANTAR,
+        ], true)) {
+            throw ValidationException::withMessages([
+                'handover_action' => 'Pesanan sudah diserahterimakan.',
             ]);
         }
 

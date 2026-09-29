@@ -25,7 +25,10 @@ class PricingCalculatorTest extends TestCase
         $this->assertSame(4, $calculator->billedWeight(2.4));
         $this->assertSame(4, $calculator->billedWeight(2.5));
         $this->assertSame(4, $calculator->billedWeight(3.5));
+        $this->assertSame(4, $calculator->billedWeight(4.0));
+        $this->assertSame(5, $calculator->billedWeight(4.5));
         $this->assertSame(5, $calculator->billedWeight(4.6));
+        $this->assertSame(5, $calculator->billedWeight(5.0));
         $this->assertSame(6, $calculator->billedWeight(5.2));
     }
 
