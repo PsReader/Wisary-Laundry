@@ -10,7 +10,7 @@
         ['route' => 'orders', 'label' => 'Daftar Pesanan', 'icon' => 'M4 6h16M4 12h16M4 18h16'],
         ['route' => 'orders.cancelled', 'label' => 'Pesanan Batal', 'icon' => 'M6 18L18 6M6 6l12 12', 'super_admin' => true],
         ['route' => 'customers', 'label' => 'Pelanggan', 'icon' => 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM16 3.13a4 4 0 0 1 0 7.75'],
-        ['route' => 'services', 'label' => 'Layanan & Harga', 'icon' => 'M3 6h18M3 12h18M3 18h18'],
+        ['route' => 'services', 'label' => 'Layanan & Harga', 'icon' => 'M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.83zM7 7h.01'],
         ['route' => 'reports', 'label' => 'Laporan', 'icon' => 'M4 19V5M4 19h16M8 15v-3M12 15V9M16 15v-5', 'super_admin' => true],
         ['route' => 'audit-logs', 'label' => 'Audit Log', 'icon' => 'M12 8v4l3 2m6-2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z', 'super_admin' => true],
         ['route' => 'staff', 'label' => 'Manajemen Staf', 'icon' => 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75', 'super_admin' => true],

@@ -152,7 +152,7 @@
                             ['route' => 'orders', 'label' => 'Pesanan', 'icon' => 'M4 6h16M4 12h16M4 18h16'],
                             ['route' => 'orders.create', 'label' => 'Buat', 'icon' => 'M12 5v14M5 12h14'],
                             ['route' => 'customers', 'label' => 'Pelanggan', 'icon' => 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z'],
-                            ['route' => 'services', 'label' => 'Layanan', 'icon' => 'M3 6h18M3 12h18M3 18h18'],
+                            ['route' => 'services', 'label' => 'Layanan', 'icon' => 'M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.83zM7 7h.01'],
                         ];
                     @endphp
                     <ul class="grid grid-cols-5">
