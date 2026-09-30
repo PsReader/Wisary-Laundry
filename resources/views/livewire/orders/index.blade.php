@@ -13,12 +13,6 @@
             />
             <div>
                 <div class="flex flex-wrap gap-2">
-                <input
-                    type="date"
-                    wire:model.live="receivedDateFilter"
-                    aria-label="Filter tanggal diterima"
-                    class="w-full rounded-lg border bg-white px-3 py-2.5 min-h-12 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-offset-0 transition border-neutral-300 focus:ring-primary-700"
-                >
                 @php
                     $todayStr = now('Asia/Jakarta')->toDateString();
                     $yesterdayStr = now('Asia/Jakarta')->subDay()->toDateString();
@@ -59,13 +53,15 @@
                 Semua ({{ array_sum($this->statusCounts) }})
             </button>
             @foreach (\App\Models\Order::statuses() as $status)
-                <button
-                    type="button"
-                    wire:click="setStatusFilter('{{ $status }}')"
-                    class="flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-2.5 min-h-12 text-sm font-semibold transition-colors {{ $this->statusFilter === $status ? 'border-primary-700 bg-primary-700 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-primary-700 hover:text-primary-700' }}"
-                >
-                    {{ \App\Models\Order::statusLabel($status) }} ({{ $this->statusCounts[$status] ?? 0 }})
-                </button>
+                @if (($this->statusCounts[$status] ?? 0) > 0)
+                    <button
+                        type="button"
+                        wire:click="setStatusFilter('{{ $status }}')"
+                        class="flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-2.5 min-h-12 text-sm font-semibold transition-colors {{ $this->statusFilter === $status ? 'border-primary-700 bg-primary-700 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-primary-700 hover:text-primary-700' }}"
+                    >
+                        {{ \App\Models\Order::statusLabel($status) }} ({{ $this->statusCounts[$status] ?? 0 }})
+                    </button>
+                @endif
             @endforeach
         </div>
 
@@ -81,7 +77,16 @@
                 </span>
                 <span class="text-neutral-400 transition-transform group-open:rotate-180" aria-hidden="true">▾</span>
             </summary>
-            <div class="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div class="mt-2 grid grid-cols-2 gap-2">
+                <div>
+                    <span class="text-xs font-medium text-neutral-700">Tanggal diterima</span>
+                    <input
+                        type="date"
+                        wire:model.live="receivedDateFilter"
+                        aria-label="Filter tanggal diterima"
+                        class="mt-1.5 w-full rounded-lg border bg-white px-3 py-2.5 min-h-12 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-offset-0 transition border-neutral-300 focus:ring-primary-700"
+                    >
+                </div>
                 <select
                     wire:model.live="paymentFilter"
                     class="w-full rounded-lg border bg-white px-3 py-2.5 min-h-12 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-offset-0 transition border-neutral-300 focus:ring-primary-700"
