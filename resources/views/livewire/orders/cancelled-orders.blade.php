@@ -1,5 +1,5 @@
 <div class="space-y-4">
-        <h1 class="text-lg font-bold text-primary-900">{{ $this->cancelledOrders->count() }} pesanan dibatalkan</h1>
+        <p class="text-sm text-neutral-500">{{ $this->cancelledOrders->count() }} pesanan dibatalkan</p>
 
         <div>
             <x-label for="search">Cari pesanan</x-label>
@@ -61,7 +61,7 @@
 
         <x-modal name="restore-modal" :show="false" focusable>
             <form wire:submit="submitRestore" class="p-6">
-                <h2 class="text-lg font-semibold text-primary-900">Pulihkan Pesanan</h2>
+                <h2 class="text-xl font-semibold text-primary-900">Pulihkan Pesanan</h2>
                 @if ($restoreOrderId)
                     @php $restoreOrder = \App\Models\Order::find($restoreOrderId); @endphp
                     @if ($restoreOrder)
@@ -73,7 +73,7 @@
                 </p>
 
                 <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-                    <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 lg:min-h-10 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                    <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
                         Batal
                     </button>
                     <x-button type="submit" variant="primary" class="sm:min-w-32" wire:loading.attr="disabled">Pulihkan Pesanan</x-button>

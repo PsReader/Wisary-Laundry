@@ -3,7 +3,7 @@
     {{-- Header --}}
     <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-            <h2 class="text-lg font-bold text-primary-900">Laporan Operasional</h2>
+            <h2 class="text-xl font-bold text-primary-900">Laporan Operasional</h2>
             @if ($range !== null)
                 <p class="text-xs text-neutral-500">Periode {{ format_date($range[0]) }} — {{ format_date($range[1]) }}</p>
             @endif
@@ -17,13 +17,13 @@
                 <label class="block text-xs font-semibold text-neutral-600 mb-1.5">Periode</label>
                 <div class="flex flex-wrap gap-2">
                     <button type="button" wire:click="setPeriod('today')"
-                        class="inline-flex items-center justify-center rounded-lg bg-primary-700 px-3 py-2 min-h-10 text-xs font-semibold text-white transition-colors hover:bg-primary-800">Hari Ini</button>
+                        class="inline-flex items-center justify-center rounded-lg bg-primary-700 px-3 py-2 min-h-12 text-xs font-semibold text-white transition-colors hover:bg-primary-800">Hari Ini</button>
                     <button type="button" wire:click="setPeriod('week')"
-                        class="inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 py-2 min-h-10 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-50">7 Hari</button>
+                        class="inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 py-2 min-h-12 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-50">7 Hari</button>
                     <button type="button" wire:click="setPeriod('month')"
-                        class="inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 py-2 min-h-10 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-50">Bulan Ini</button>
+                        class="inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 py-2 min-h-12 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-50">Bulan Ini</button>
                     <button type="button" wire:click="setPeriod('last_month')"
-                        class="inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 py-2 min-h-10 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-50">Bulan Lalu</button>
+                        class="inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 py-2 min-h-12 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-50">Bulan Lalu</button>
                 </div>
             </div>
 
@@ -50,11 +50,11 @@
             <p class="text-xs font-semibold text-neutral-600 mb-2">Ekspor Data (CSV)</p>
             <div class="flex flex-wrap gap-2">
                 <a href="{{ route('reports.export.orders', ['from' => $from, 'to' => $to]) }}"
-                    class="inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 py-2 min-h-10 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-50">Pesanan</a>
+                    class="inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 py-2 min-h-12 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-50">Pesanan</a>
                 <a href="{{ route('reports.export.payments', ['from' => $from, 'to' => $to]) }}"
-                    class="inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 py-2 min-h-10 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-50">Pembayaran</a>
+                    class="inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 py-2 min-h-12 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-50">Pembayaran</a>
                 <a href="{{ route('reports.export.customers') }}"
-                    class="inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 py-2 min-h-10 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-50">Pelanggan</a>
+                    class="inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 py-2 min-h-12 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-50">Pelanggan</a>
             </div>
         </div>
     </x-card>
@@ -76,7 +76,7 @@
         <x-card title="Jumlah Pesanan">
             <div class="grid gap-6 lg:grid-cols-2">
                 <div>
-                    <h3 class="mb-2 text-sm font-semibold text-neutral-700">Per Status</h3>
+                    <h3 class="mb-2 text-base font-semibold text-neutral-700">Per Status</h3>
                     <table class="w-full text-sm">
                         <tbody>
                             @forelse ($data['ordersByStatus'] as $status => $count)
@@ -91,7 +91,7 @@
                     </table>
                 </div>
                 <div>
-                    <h3 class="mb-2 text-sm font-semibold text-neutral-700">Per Hari</h3>
+                    <h3 class="mb-2 text-base font-semibold text-neutral-700">Per Hari</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm min-w-[240px]">
                             <tbody>
@@ -114,7 +114,7 @@
         <x-card title="Pendapatan (Pembayaran Diterima)">
             <div class="grid gap-6 lg:grid-cols-3">
                 <div>
-                    <h3 class="mb-2 text-sm font-semibold text-neutral-700">Harian</h3>
+                    <h3 class="mb-2 text-base font-semibold text-neutral-700">Harian</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm min-w-[200px]">
                             <tbody>
@@ -131,7 +131,7 @@
                     </div>
                 </div>
                 <div>
-                    <h3 class="mb-2 text-sm font-semibold text-neutral-700">Mingguan</h3>
+                    <h3 class="mb-2 text-base font-semibold text-neutral-700">Mingguan</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm min-w-[200px]">
                             <tbody>
@@ -148,7 +148,7 @@
                     </div>
                 </div>
                 <div>
-                    <h3 class="mb-2 text-sm font-semibold text-neutral-700">Bulanan</h3>
+                    <h3 class="mb-2 text-base font-semibold text-neutral-700">Bulanan</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm min-w-[120px]">
                             <tbody>

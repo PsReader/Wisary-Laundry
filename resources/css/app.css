@@ -4,7 +4,7 @@
 
 .scrollbar-chip {
     scrollbar-width: thin;
-    scrollbar-color: #d4d4d8 transparent;
+    scrollbar-color: #D0D5DD transparent;
 }
 
 .scrollbar-chip::-webkit-scrollbar {
@@ -16,7 +16,7 @@
 }
 
 .scrollbar-chip::-webkit-scrollbar-thumb {
-    background: #d4d4d8;
+    background: #D0D5DD;
     border-radius: 9999px;
 }
 

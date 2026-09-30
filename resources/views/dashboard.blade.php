@@ -38,7 +38,7 @@
 <x-app-layout title="Dasbor" :breadcrumbs="[['label' => 'Dasbor']]">
     <div class="flex items-center justify-between gap-3">
         <div>
-            <h2 class="text-lg font-bold text-primary-900">Ringkasan {{ format_date($todayStart) }}</h2>
+            <h2 class="text-xl font-bold text-primary-900">Ringkasan {{ format_date($todayStart) }}</h2>
         </div>
         <a href="{{ route('orders.create') }}" class="inline-flex items-center justify-center rounded-lg bg-primary-700 px-4 py-2.5 min-h-12 text-sm font-semibold text-white transition-colors hover:bg-primary-800">
             Buat Pesanan

@@ -5,9 +5,11 @@ namespace App\Livewire\AuditLogs;
 use App\Models\User;
 use App\Support\AuditFeed;
 use Illuminate\Support\Carbon;
+use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
+#[Title('Log Aktivitas')]
 class Index extends Component
 {
     #[Url]

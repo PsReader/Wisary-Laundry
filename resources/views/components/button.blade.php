@@ -23,7 +23,7 @@
 
     $classes = implode(' ', [
         'inline-flex items-center justify-center gap-2 font-semibold rounded-lg transition-colors',
-        'min-h-12 lg:min-h-10',
+        'min-h-12',
         'disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-opacity-100',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
         $block ? 'w-full' : '',

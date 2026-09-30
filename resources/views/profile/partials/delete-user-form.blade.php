@@ -14,7 +14,7 @@
             @csrf
             @method('delete')
 
-            <h2 class="text-lg font-semibold text-primary-900">Yakin ingin menghapus akun?</h2>
+            <h2 class="text-xl font-semibold text-primary-900">Yakin ingin menghapus akun?</h2>
 
             <p class="mt-1 text-sm text-neutral-600">
                 Setelah akun dihapus, seluruh data akan dihapus permanen. Masukkan kata sandi untuk konfirmasi.
@@ -32,7 +32,7 @@
             </div>
 
             <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-                <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 lg:min-h-10 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
                     Batal
                 </button>
                 <x-button type="submit" variant="destructive" class="sm:min-w-32">Hapus Akun</x-button>

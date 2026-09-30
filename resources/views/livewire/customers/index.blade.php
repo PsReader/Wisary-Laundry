@@ -68,7 +68,7 @@
                         type="button"
                         wire:click="previousPage"
                         @disabled($this->customers->onFirstPage())
-                        class="inline-flex items-center justify-center px-4 py-2.5 min-h-12 lg:min-h-10 text-sm font-medium rounded-lg border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        class="inline-flex items-center justify-center px-4 py-2.5 min-h-12 text-sm font-medium rounded-lg border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                         Sebelumnya
                     </button>
@@ -76,7 +76,7 @@
                         type="button"
                         wire:click="nextPage"
                         @disabled(! $this->customers->hasMorePages())
-                        class="inline-flex items-center justify-center px-4 py-2.5 min-h-12 lg:min-h-10 text-sm font-medium rounded-lg border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        class="inline-flex items-center justify-center px-4 py-2.5 min-h-12 text-sm font-medium rounded-lg border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                         Berikutnya
                     </button>
@@ -87,7 +87,7 @@
 
     <x-modal name="customer-form" :show="false" focusable>
         <form wire:submit="save" class="p-6">
-            <h2 class="text-lg font-semibold text-primary-900">{{ $formMode === 'edit' ? 'Edit Pelanggan' : 'Tambah Pelanggan' }}</h2>
+            <h2 class="text-xl font-semibold text-primary-900">{{ $formMode === 'edit' ? 'Edit Pelanggan' : 'Tambah Pelanggan' }}</h2>
             <p class="mt-1 text-sm text-neutral-600">
                 {{ $formMode === 'edit' ? 'Perbarui informasi kontak pelanggan.' : 'Pelanggan baru akan tersedia saat membuat pesanan.' }}
             </p>
@@ -138,7 +138,7 @@
             </div>
 
             <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-                <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 lg:min-h-10 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
                     Batal
                 </button>
                 <x-button type="submit" class="sm:min-w-32" wire:loading.attr="disabled">{{ $formMode === 'edit' ? 'Simpan Perubahan' : 'Simpan Pelanggan' }}</x-button>
@@ -148,13 +148,13 @@
 
     <x-modal name="confirm-delete" :show="false" focusable>
         <div class="p-6">
-            <h2 class="text-lg font-semibold text-primary-900">Hapus Pelanggan</h2>
+            <h2 class="text-xl font-semibold text-primary-900">Hapus Pelanggan</h2>
             <p class="mt-1 text-sm text-neutral-600">
                 Yakin ingin menghapus <strong>{{ $this->delete_customer?->name ?? 'pelanggan ini' }}</strong>? Tindakan ini tidak dapat dibatalkan.
             </p>
 
             <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-                <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 lg:min-h-10 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
                     Batal
                 </button>
                 <x-button type="button" variant="destructive" wire:click="delete">Ya, Hapus</x-button>

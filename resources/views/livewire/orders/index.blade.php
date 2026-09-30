@@ -12,6 +12,7 @@
                 helptext=""
             />
             <div>
+                <div class="flex flex-wrap gap-2">
                 <input
                     type="date"
                     wire:model.live="receivedDateFilter"
@@ -21,7 +22,7 @@
                 @php
                     $todayStr = now('Asia/Jakarta')->toDateString();
                     $yesterdayStr = now('Asia/Jakarta')->subDay()->toDateString();
-                    $dateChipBase = 'flex-1 rounded-lg border px-2 py-1.5 min-h-8 text-xs font-semibold transition-colors';
+                    $dateChipBase = 'flex-1 rounded-lg border px-2 py-2 min-h-12 text-xs font-semibold transition-colors';
                 @endphp
                 <button
                     type="button"
@@ -44,6 +45,7 @@
                 >
                     7 Hari
                 </button>
+                </div>
             </div>
         </div>
 
@@ -171,6 +173,9 @@
                     <tr>
                         <td colspan="7" class="py-10 text-center text-neutral-500">
                             <p class="text-sm">Tidak ada pesanan ditemukan.</p>
+                            @if ($this->hasFilters())
+                                <button type="button" wire:click="resetFilters" class="mt-2 text-sm font-medium text-primary-700 hover:underline">Hapus filter</button>
+                            @endif
                         </td>
                     </tr>
                 @endforelse
@@ -199,14 +204,17 @@
         @empty
             <div class="rounded-xl border border-neutral-200 bg-white p-8 text-center text-neutral-500">
                 <p class="text-sm">Tidak ada pesanan ditemukan.</p>
+                @if ($this->hasFilters())
+                    <button type="button" wire:click="resetFilters" class="mt-2 text-sm font-medium text-primary-700 hover:underline">Hapus filter</button>
+                @endif
             </div>
         @endforelse
     </div>
 
     {{-- Pagination --}}
     @if ($orders->hasPages())
-        <div class="mt-4">
-            {{ $orders->withQueryString()->links() }}
-        </div>
+    <div class="mt-4 -mx-4 overflow-x-auto px-4 scrollbar-chip [&_a]:inline-flex [&_a]:items-center [&_a]:min-h-12 [&_a]:px-3 [&_span]:inline-flex [&_span]:items-center [&_span]:min-h-12 [&_span]:px-3">
+        {{ $orders->withQueryString()->links() }}
+    </div>
     @endif
 </div>

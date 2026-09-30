@@ -1,4 +1,4 @@
-<div class="space-y-4 pb-44 lg:pb-0">
+<div class="space-y-4 pb-48 lg:pb-0">
     <form wire:submit="save" class="space-y-4">
         {{-- Pelanggan --}}
         <x-card title="Pelanggan">
@@ -170,7 +170,7 @@
                                         >
                                             <span class="font-medium text-neutral-950">{{ $service['name'] }}</span>
                                             <span class="text-xs text-neutral-500">{{ $service['price_label'] }}</span>
-                                            <span class="text-[10px] font-bold uppercase {{ $service['unit'] === \App\Models\Service::PRICING_TYPE_KG ? 'bg-primary-100 text-primary-800' : 'bg-neutral-100 text-neutral-600' }} px-1.5 py-0.5 rounded">{{ $service['unit'] }}</span>
+                                            <span class="text-xs font-bold uppercase {{ $service['unit'] === \App\Models\Service::PRICING_TYPE_KG ? 'bg-primary-100 text-primary-800' : 'bg-neutral-100 text-neutral-600' }} px-1.5 py-0.5 rounded">{{ $service['unit'] }}</span>
                                         </button>
                                     @endforeach
                                 </div>
@@ -190,7 +190,7 @@
             <div class="space-y-4">
                 <div>
                     <x-label for="method" required>Metode serah terima</x-label>
-                    <div class="mt-1.5 grid grid-cols-2 gap-3">
+                    <div class="mt-1.5 grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <label class="relative flex cursor-pointer items-center justify-center rounded-lg border px-4 py-3 min-h-12 text-sm font-semibold transition-colors {{ $method === \App\Models\Order::METHOD_DIAMBIL ? 'border-primary-700 bg-primary-50 text-primary-800' : 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50' }}">
                             <input type="radio" name="method" value="{{ \App\Models\Order::METHOD_DIAMBIL }}" wire:model.live="method" class="sr-only" />
                             Diambil Pelanggan
@@ -240,7 +240,7 @@
         </x-card>
 
         {{-- Ringkasan sticky --}}
-        <div class="sticky bottom-16 lg:bottom-4 z-20 rounded-xl border border-neutral-100 bg-white p-4 shadow-lg">
+        <div class="sticky bottom-16 lg:bottom-4 z-20 rounded-xl border border-neutral-200 bg-white p-4 shadow-lg">
             <div class="flex items-center justify-between gap-4">
                 <div class="min-w-0 space-y-1">
                     @if ($this->estimatedCompletion)
@@ -259,7 +259,7 @@
     {{-- Modal pelanggan baru --}}
     <x-modal name="new-customer" :show="false" focusable>
         <form wire:submit="saveNewCustomer" class="p-6">
-            <h2 class="text-lg font-semibold text-primary-900">Tambah Pelanggan Baru</h2>
+            <h2 class="text-xl font-semibold text-primary-900">Tambah Pelanggan Baru</h2>
             <p class="mt-1 text-sm text-neutral-600">Pelanggan akan langsung terpilih setelah disimpan.</p>
 
             <div class="mt-5 space-y-4">
@@ -308,7 +308,7 @@
             </div>
 
             <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-                <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 lg:min-h-10 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
                     Batal
                 </button>
                 <x-button type="submit" class="sm:min-w-32" wire:loading.attr="disabled">Simpan Pelanggan</x-button>

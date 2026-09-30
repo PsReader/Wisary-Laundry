@@ -6,9 +6,11 @@ use App\Models\Order;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Title('Pesanan')]
 class Index extends Component
 {
     use WithPagination;
@@ -68,6 +70,24 @@ class Index extends Component
             ->pluck('total', 'status')
             ->map(fn ($total) => (int) $total)
             ->all();
+    }
+
+    public function hasFilters(): bool
+    {
+        return (bool) ($this->search || $this->statusFilter || $this->paymentFilter
+            || $this->handoverFilter || $this->methodFilter
+            || $this->receivedDateFilter || $this->recent7Filter);
+    }
+
+    public function resetFilters(): void
+    {
+        $this->search = '';
+        $this->statusFilter = '';
+        $this->paymentFilter = '';
+        $this->handoverFilter = '';
+        $this->methodFilter = '';
+        $this->receivedDateFilter = '';
+        $this->recent7Filter = '';
     }
 
     private function baseQuery(): Builder

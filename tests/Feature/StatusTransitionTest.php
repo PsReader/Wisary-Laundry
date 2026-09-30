@@ -114,6 +114,29 @@ class StatusTransitionTest extends TestCase
             ->assertDontSee($old->order_number);
     }
 
+    public function test_reset_filters_clears_everything_and_hides_the_clear_action(): void
+    {
+        $order = Order::factory()->ready()->create(['order_number' => '5555090926']);
+
+        Livewire::actingAs($this->staff())
+            ->test(Index::class)
+            ->set('search', 'zzz-tidak-ada')
+            ->set('statusFilter', Order::STATUS_SIAP_DIAMBIL)
+            ->set('receivedDateFilter', '2020-01-01')
+            ->assertDontSee($order->order_number)
+            ->assertSee('Hapus filter')
+            ->call('resetFilters')
+            ->assertSet('search', '')
+            ->assertSet('statusFilter', '')
+            ->assertSet('paymentFilter', '')
+            ->assertSet('handoverFilter', '')
+            ->assertSet('methodFilter', '')
+            ->assertSet('receivedDateFilter', '')
+            ->assertSet('recent7Filter', '')
+            ->assertSee($order->order_number)
+            ->assertDontSee('Hapus filter');
+    }
+
     public function test_staff_can_advance_status_and_history_is_recorded(): void
     {
         $this->travelTo(Carbon::parse('2026-09-09 10:00:00', 'Asia/Jakarta'));

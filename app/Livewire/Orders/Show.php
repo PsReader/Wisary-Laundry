@@ -62,7 +62,9 @@ class Show extends Component
 
     public function render(): View
     {
-        return view('livewire.orders.show');
+        // Dynamic title (order number); the layout renders this as the page <h1>.
+        return view('livewire.orders.show')
+            ->title('Pesanan '.$this->order->order_number);
     }
 
     #[Computed]

@@ -9,20 +9,25 @@
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-primary-900">№ {{ $order->order_number }}</h1>
-            <p class="mt-1 text-sm text-neutral-600">
+            <p class="text-sm text-neutral-600">
                 {{ $order->customer->name }}
-                <a href="tel:+62{{ substr($order->customer->whatsapp, 1) }}" class="text-primary-700 hover:underline ml-1">{{ $order->customer->whatsapp }}</a>
+                <a href="tel:+62{{ substr($order->customer->whatsapp, 1) }}" class="inline-flex items-center min-h-11 text-primary-700 hover:underline ml-1">{{ $order->customer->whatsapp }}</a>
             </p>
             <p class="mt-1 text-xs text-neutral-500">
                 Dibuat {{ format_datetime_wib($order->received_at) }} oleh {{ $order->createdBy?->name ?? '—' }}
             </p>
         </div>
-        <div class="flex flex-wrap gap-2">
-            <x-badge :status="\App\Models\Order::statusLabel($order->status)">{{ \App\Models\Order::statusLabel($order->status) }}</x-badge>
-            <x-badge :status="\App\Models\Order::paymentLabel($order->payment_status)">{{ \App\Models\Order::paymentLabel($order->payment_status) }}</x-badge>
-            <x-badge :status="\App\Models\Order::handoverLabel($order->handover_status)">{{ \App\Models\Order::handoverLabel($order->handover_status) }}</x-badge>
-            <x-badge color="bg-neutral-100 text-neutral-700">{{ \App\Models\Order::methodLabel($order->method) }}</x-badge>
+        <div class="flex flex-col sm:items-end gap-3">
+            <div>
+                <p class="text-sm text-neutral-500">Total</p>
+                <p class="text-2xl sm:text-3xl font-bold text-primary-900">{{ format_rupiah((float) $order->total_price) }}</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <x-badge :status="\App\Models\Order::statusLabel($order->status)">{{ \App\Models\Order::statusLabel($order->status) }}</x-badge>
+                <x-badge :status="\App\Models\Order::paymentLabel($order->payment_status)">{{ \App\Models\Order::paymentLabel($order->payment_status) }}</x-badge>
+                <x-badge :status="\App\Models\Order::handoverLabel($order->handover_status)">{{ \App\Models\Order::handoverLabel($order->handover_status) }}</x-badge>
+                <x-badge color="bg-neutral-100 text-neutral-700">{{ \App\Models\Order::methodLabel($order->method) }}</x-badge>
+            </div>
         </div>
     </div>
 
@@ -109,7 +114,8 @@
 
     {{-- Order items --}}
     <x-card title="Detail Layanan">
-        <div class="overflow-x-auto">
+        {{-- Table (tablet+) --}}
+        <div class="hidden sm:block overflow-x-auto scrollbar-chip">
             <table class="w-full text-sm min-w-[480px]">
                 <thead>
                     <tr class="text-left text-xs uppercase tracking-wide text-neutral-500 border-b border-neutral-100">
@@ -158,6 +164,48 @@
                 </tfoot>
             </table>
         </div>
+
+        {{-- Cards (mobile): money must never be off-screen --}}
+        <div class="sm:hidden space-y-3">
+            @foreach ($order->items as $item)
+                <div class="rounded-xl border border-neutral-200 p-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="font-medium">{{ $item->service_name }}</p>
+                            <p class="text-xs text-neutral-500">
+                                {{ $item->pricing_type === 'kg' ? 'Kilogram' : 'Unit' }} · {{ format_rupiah((float) $item->price) }}/{{ $item->unit }}
+                            </p>
+                        </div>
+                        <p class="shrink-0 font-semibold text-right">{{ format_rupiah((float) $item->subtotal) }}</p>
+                    </div>
+                    <dl class="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                        <dt class="text-neutral-500">Berat/Jumlah</dt>
+                        <dd class="text-right font-medium">
+                            @if ($item->pricing_type === 'kg')
+                                {{ $item->actual_weight }} kg
+                            @else
+                                {{ $item->quantity }} unit
+                            @endif
+                        </dd>
+                        <dt class="text-neutral-500">Ditagihkan</dt>
+                        <dd class="text-right font-medium">
+                            @if ($item->pricing_type === 'kg')
+                                {{ $item->billed_weight }} kg
+                            @else
+                                —
+                            @endif
+                        </dd>
+                    </dl>
+                    @if ($item->note)
+                        <p class="mt-2 text-xs text-neutral-500">{{ $item->note }}</p>
+                    @endif
+                </div>
+            @endforeach
+            <div class="flex items-center justify-between rounded-xl bg-primary-50 p-4">
+                <span class="font-semibold text-primary-900">Total</span>
+                <span class="font-bold text-lg text-primary-900">{{ format_rupiah((float) $order->total_price) }}</span>
+            </div>
+        </div>
     </x-card>
 
     {{-- Payment summary --}}
@@ -201,7 +249,7 @@
         @if ($order->payments->isNotEmpty() || $order->refunds->isNotEmpty())
             <div class="mt-4 border-t border-neutral-100 pt-4">
                 <details class="group">
-                    <summary class="flex cursor-pointer items-center justify-between text-sm font-semibold text-primary-700 list-none min-h-10">
+                    <summary class="flex cursor-pointer items-center justify-between text-sm font-semibold text-primary-700 list-none min-h-12">
                         Riwayat pembayaran
                         <span class="text-neutral-500 group-open:hidden">Buka</span>
                         <span class="text-neutral-500 hidden group-open:inline">Tutup</span>
@@ -224,7 +272,7 @@
                         @endforelse
 
                         @forelse ($order->refunds->sortByDesc('refunded_at') as $refund)
-                            <li class="flex items-baseline justify-between gap-3 rounded-lg bg-red-50/60 px-3 py-2">
+                            <li class="flex items-baseline justify-between gap-3 rounded-lg bg-danger-50/60 px-3 py-2">
                                 <div class="min-w-0">
                                     <p class="text-sm font-medium text-danger-700">Refund {{ format_rupiah($refund->amount) }}</p>
                                     <p class="text-xs text-neutral-500">{{ \App\Models\Payment::methodLabel($refund->method) }} — {{ $refund->reason }}</p>
@@ -271,7 +319,7 @@
     @if ($order->status === \App\Models\Order::STATUS_DIBATALKAN)
         <x-card>
             <div class="rounded-xl bg-danger-50 border border-danger-200 p-4">
-                <h3 class="text-sm font-semibold text-danger-700">Pesanan Dibatalkan</h3>
+                <h3 class="text-base font-semibold text-danger-700">Pesanan Dibatalkan</h3>
                 <dl class="mt-2 space-y-1 text-sm">
                     <div class="flex gap-2">
                         <dt class="text-neutral-500">Alasan:</dt>
@@ -418,7 +466,7 @@
 {{-- Cancel modal --}}
 <x-modal name="cancel-modal" :show="false" focusable>
     <form wire:submit="submitCancel" class="p-6">
-        <h2 class="text-lg font-semibold text-primary-900">Batalkan Pesanan</h2>
+        <h2 class="text-xl font-semibold text-primary-900">Batalkan Pesanan</h2>
         @if ($cancelOrderId)
             @php $cancelOrder = \App\Models\Order::find($cancelOrderId); @endphp
             @if ($cancelOrder)
@@ -444,7 +492,7 @@
         </div>
 
         <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-            <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 lg:min-h-10 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+            <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
                 Batal
             </button>
             <x-button type="submit" variant="destructive" class="sm:min-w-32" wire:loading.attr="disabled">Batalkan Pesanan</x-button>
@@ -455,7 +503,7 @@
 {{-- Payment modal --}}
 <x-modal name="payment-modal" :show="false" focusable>
     <form wire:submit="submitPayment" class="p-6">
-        <h2 class="text-lg font-semibold text-primary-900">Catat Pembayaran</h2>
+        <h2 class="text-xl font-semibold text-primary-900">Catat Pembayaran</h2>
         @if ($paymentOrderId)
             @php $paymentOrder = \App\Models\Order::find($paymentOrderId); @endphp
             @if ($paymentOrder)
@@ -506,7 +554,7 @@
         </div>
 
         <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-            <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 lg:min-h-10 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+            <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
                 Batal
             </button>
             <x-button type="submit" class="sm:min-w-32" wire:loading.attr="disabled">Simpan Pembayaran</x-button>
@@ -517,7 +565,7 @@
 {{-- Refund modal --}}
 <x-modal name="refund-modal" :show="false" focusable>
     <form wire:submit="submitRefund" class="p-6">
-        <h2 class="text-lg font-semibold text-primary-900">Kirim Refund</h2>
+        <h2 class="text-xl font-semibold text-primary-900">Kirim Refund</h2>
         @if ($refundOrderId)
             @php $refundOrder = \App\Models\Order::find($refundOrderId); @endphp
             @if ($refundOrder)
@@ -569,7 +617,7 @@
         </div>
 
         <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-            <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 lg:min-h-10 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+            <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
                 Batal
             </button>
             <x-button type="submit" class="sm:min-w-32" wire:loading.attr="disabled">Simpan Refund</x-button>
@@ -580,7 +628,7 @@
 {{-- Price adjustment modal (Super Admin) --}}
 <x-modal name="adjust-price-modal" :show="false" focusable>
     <form wire:submit="submitAdjustPrice" class="p-6">
-        <h2 class="text-lg font-semibold text-primary-900">Sesuaikan Harga Final</h2>
+        <h2 class="text-xl font-semibold text-primary-900">Sesuaikan Harga Final</h2>
         @if ($adjustPriceOrderId)
             @php $adjustOrder = \App\Models\Order::find($adjustPriceOrderId); @endphp
             @if ($adjustOrder)
@@ -619,7 +667,7 @@
         </div>
 
         <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-            <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 lg:min-h-10 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+            <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
                 Batal
             </button>
             <x-button type="submit" class="sm:min-w-32" wire:loading.attr="disabled">Sesuaikan Harga</x-button>
@@ -630,7 +678,7 @@
 {{-- Estimate override modal (Super Admin) --}}
 <x-modal name="override-estimate-modal" :show="false" focusable>
     <form wire:submit="submitOverrideEstimate" class="p-6">
-        <h2 class="text-lg font-semibold text-primary-900">Ubah Estimasi Selesai</h2>
+        <h2 class="text-xl font-semibold text-primary-900">Ubah Estimasi Selesai</h2>
         @if ($overrideEstimateOrderId)
             @php $estOrder = \App\Models\Order::find($overrideEstimateOrderId); @endphp
             @if ($estOrder)
@@ -652,7 +700,7 @@
         </div>
 
         <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-            <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 lg:min-h-10 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+            <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
                 Batal
             </button>
             <x-button type="submit" class="sm:min-w-32" wire:loading.attr="disabled">Simpan Estimasi</x-button>

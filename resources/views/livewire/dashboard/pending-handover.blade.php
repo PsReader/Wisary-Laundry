@@ -57,7 +57,7 @@
 
     @if ($this->pendingOrders->isNotEmpty())
         <div class="pt-1 text-right">
-            <a href="{{ route('orders') }}" class="inline-flex items-center gap-1 text-sm font-semibold text-primary-700 hover:text-primary-800 min-h-10">
+            <a href="{{ route('orders') }}" class="inline-flex items-center gap-1 text-sm font-semibold text-primary-700 hover:text-primary-800 min-h-12">
                 Lihat semua
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M5 12h14M13 6l6 6-6 6"/>

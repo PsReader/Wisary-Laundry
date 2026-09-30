@@ -622,7 +622,7 @@ Menyiapkan aplikasi agar aman untuk digunakan dalam operasional nyata.
 
 Memastikan seluruh alur bisnis berjalan benar pada desktop dan terutama perangkat mobile.
 
-> **Pembaruan 15 September 2026:** Item test otomatis di bawah ditandai selesai karena seluruhnya sudah memiliki file test yang lolos (203 test / 694 asersi). Sisa item adalah pengujian manual perangkat.
+> **Pembaruan 15 September 2026:** Item test otomatis di bawah ditandai selesai karena seluruhnya sudah memiliki file test yang lolos (203 test / 694 asersi). **Pembaruan 30 September 2026:** jumlah test sekarang 214 (753 asersi) — angka 203/694 di atas hanya sejarah; aturan mainnya adalah "seluruh file test lolos". Sisa item adalah pengujian manual perangkat.
 
 ### Pekerjaan
 

@@ -5,7 +5,6 @@ import forms from '@tailwindcss/forms';
 export default {
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
-        './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
     ],
 
@@ -30,8 +29,8 @@ export default {
                 },
                 success: {
                     50: '#F2FBF6',
-                    100: '#E3F6EC',
-                    200: '#C5ECd9',
+                    100: '#DDF7E8',
+                    200: '#C5ECD9',
                     300: '#93DCB2',
                     400: '#59C287',
                     500: '#33A46A',
@@ -75,6 +74,23 @@ export default {
                     700: '#0B6E99',
                     800: '#0E567A',
                     900: '#104868',
+                },
+                // Design System §4.3. 950/700/500/300/100 are specified by the
+                // doc; the rest are interpolated between them so the whole
+                // ramp reads as one system. Overrides Tailwind's default
+                // neutral, which failed 4.5:1 for muted text on primary-50.
+                neutral: {
+                    50: '#F9FAFB',
+                    100: '#F2F4F7',
+                    200: '#EAECF0',
+                    300: '#D0D5DD',
+                    400: '#98A2B3',
+                    500: '#667085',
+                    600: '#5A6478',
+                    700: '#475467',
+                    800: '#344054',
+                    900: '#1D2939',
+                    950: '#17212B',
                 },
             },
         },

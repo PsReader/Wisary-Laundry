@@ -65,7 +65,7 @@
                                         <input type="hidden" name="user_id" value="{{ $user->id }}">
                                         <button
                                             type="submit"
-                                            class="inline-flex items-center gap-1.5 px-3 py-2 min-h-12 lg:min-h-10 text-sm font-medium {{ $user->is_active ? 'text-warning-700 hover:bg-warning-50' : 'text-success-700 hover:bg-success-50' }} rounded-lg transition-colors"
+                                            class="inline-flex items-center gap-1.5 px-3 py-2 min-h-12 text-sm font-medium {{ $user->is_active ? 'text-warning-700 hover:bg-warning-50' : 'text-success-700 hover:bg-success-50' }} rounded-lg transition-colors"
                                         >
                                             {{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
                                         </button>
@@ -75,7 +75,7 @@
                                         type="button"
                                         x-data
                                         @click="$dispatch('open-modal', { name: 'reset-password-{{ $user->id }}' })"
-                                        class="inline-flex items-center gap-1.5 px-3 py-2 min-h-12 lg:min-h-10 text-sm font-medium text-primary-700 hover:bg-primary-50 rounded-lg transition-colors"
+                                        class="inline-flex items-center gap-1.5 px-3 py-2 min-h-12 text-sm font-medium text-primary-700 hover:bg-primary-50 rounded-lg transition-colors"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                             <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
@@ -95,7 +95,7 @@
         <form method="POST" action="{{ route('staff.store') }}" class="p-6">
             @csrf
 
-            <h2 class="text-lg font-semibold text-primary-900">Tambah Akun Staf</h2>
+            <h2 class="text-xl font-semibold text-primary-900">Tambah Akun Staf</h2>
             <p class="mt-1 text-sm text-neutral-600">
                 Akun baru akan langsung aktif dan dapat login.
             </p>
@@ -137,7 +137,7 @@
             </div>
 
             <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-                <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 lg:min-h-10 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
                     Batal
                 </button>
                 <x-button type="submit" class="sm:min-w-32">Simpan Akun</x-button>
@@ -151,7 +151,7 @@
                 @csrf
                 <input type="hidden" name="user_id" value="{{ $user->id }}">
 
-                <h2 class="text-lg font-semibold text-primary-900">Atur Ulang Kata Sandi</h2>
+                <h2 class="text-xl font-semibold text-primary-900">Atur Ulang Kata Sandi</h2>
                 <p class="mt-1 text-sm text-neutral-600">
                     Kata sandi baru untuk <strong>{{ $user->name }}</strong> ({{ $user->email }}).
                 </p>
@@ -174,7 +174,7 @@
                 </div>
 
                 <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-                    <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 lg:min-h-10 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                    <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
                         Batal
                     </button>
                     <x-button type="submit" class="sm:min-w-32">Simpan Kata Sandi</x-button>

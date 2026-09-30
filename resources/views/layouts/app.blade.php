@@ -56,9 +56,9 @@
                 <div class="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-primary-800 text-white flex flex-col transition-transform duration-200">
                     <div class="flex items-center justify-between px-5 py-5 border-b border-primary-700/40">
                         <a href="{{ route('dashboard') }}" class="block w-auto shrink-0">
-                            <img src="{{ asset('images/wisary-logo-sidebar.svg') }}" alt="WISARY Laundry" class="h-11 w-auto">
+                            <img src="{{ asset('images/wisary-logo-sidebar.svg') }}" alt="WISARY Laundry" class="h-12 w-auto">
                         </a>
-                        <button type="button" data-drawer-close class="inline-flex items-center justify-center w-12 h-12 text-white hover:bg-primary-700/40 rounded-lg" aria-label="Tutup menu">
+                        <button type="button" data-drawer-close class="inline-flex items-center justify-center w-12 h-12 text-white hover:bg-primary-700/40 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80" aria-label="Tutup menu">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M18 6L6 18M6 6l12 12"/>
                             </svg>
@@ -94,7 +94,7 @@
                 <header class="lg:hidden sticky top-0 z-40 bg-primary-800 text-white">
                     <div class="flex items-center justify-between px-4 h-16">
 <a href="{{ route('dashboard') }}" class="block w-auto shrink-0">
-                        <img src="{{ asset('images/wisary-logo-sidebar.svg') }}" alt="WISARY Laundry" class="h-10 w-auto">
+                        <img src="{{ asset('images/wisary-logo-sidebar.svg') }}" alt="WISARY Laundry" class="h-12 w-auto">
                     </a>
                         <button type="button" data-drawer-open class="inline-flex items-center justify-center w-12 h-12 text-white hover:bg-primary-700/40 rounded-lg" aria-label="Buka menu" aria-haspopup="true">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -104,28 +104,31 @@
                     </div>
                 </header>
 
-                {{-- Page Header (desktop) --}}
-                <div class="hidden lg:block border-b border-neutral-100 bg-white">
-                    <div class="px-8 py-4 flex items-center justify-between">
-                        @if (! empty($breadcrumbs))
-                            <nav class="text-sm text-neutral-500" aria-label="Breadcrumb">
-                                @foreach ($breadcrumbs as $index => $crumb)
-                                    @if ($index > 0)
-                                        <span class="mx-1 text-neutral-300">/</span>
-                                    @endif
-                                    @if (isset($crumb['url']))
-                                        <a href="{{ $crumb['url'] }}" class="hover:text-primary-700">{{ $crumb['label'] }}</a>
-                                    @else
-                                        <span class="text-neutral-950 font-medium">{{ $crumb['label'] }}</span>
-                                    @endif
-                                @endforeach
-                            </nav>
-                        @else
-                            <span></span>
-                        @endif
+                {{-- Page Header (title lives here, once, at every breakpoint) --}}
+                <div class="border-b border-neutral-100 bg-white">
+                    <div class="px-4 py-4 lg:px-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div class="min-w-0">
+                            @if (! empty($breadcrumbs))
+                                <nav class="mb-1 text-xs text-neutral-500" aria-label="Breadcrumb">
+                                    @foreach ($breadcrumbs as $index => $crumb)
+                                        @if ($index > 0)
+                                            <span class="mx-1 text-neutral-300">/</span>
+                                        @endif
+                                        @if (isset($crumb['url']))
+                                            <a href="{{ $crumb['url'] }}" class="hover:text-primary-700">{{ $crumb['label'] }}</a>
+                                        @else
+                                            <span class="text-neutral-950 font-medium">{{ $crumb['label'] }}</span>
+                                        @endif
+                                    @endforeach
+                                </nav>
+                            @endif
+                            @if (! empty($title))
+                                <h1 class="text-2xl sm:text-3xl font-bold text-primary-900">{{ $title }}</h1>
+                            @endif
+                        </div>
 
-                        <div class="flex items-center gap-3">
-                            <a href="{{ route('profile.edit') }}" class="inline-flex items-center gap-2 px-4 py-2 min-h-12 lg:min-h-10 text-sm font-medium text-neutral-700 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-colors">
+                        <div class="flex items-center gap-3 shrink-0">
+                            <a href="{{ route('profile.edit') }}" class="hidden lg:inline-flex items-center gap-2 px-4 py-2 min-h-12 text-sm font-medium text-neutral-700 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                                 </svg>
@@ -138,13 +141,6 @@
 
                 {{-- Content --}}
                 <main class="flex-1 px-4 py-6 lg:px-8 lg:py-8 w-full max-w-7xl mx-auto">
-                    <div class="lg:hidden mb-4 flex flex-col gap-3">
-                        <h1 class="text-2xl font-bold text-primary-900">{{ $title }}</h1>
-                        @isset($headerActions)
-                            <div class="flex items-center gap-2">{{ $headerActions }}</div>
-                        @endisset
-                    </div>
-
                     {{ $slot }}
                 </main>
 
@@ -163,18 +159,18 @@
                         @foreach ($bottom as $item)
                             @if ($item['route'] === 'orders.create')
                                 <li>
-                                    <a href="{{ route($item['route']) }}" class="flex flex-col items-center justify-center min-h-14 py-1" aria-label="Buat pesanan">
+                                    <a href="{{ route($item['route']) }}" class="flex flex-col items-center justify-center min-h-14 py-1 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-700" aria-label="Buat pesanan">
                                         <span class="flex items-center justify-center w-14 h-14 -mt-6 rounded-full bg-primary-700 text-white shadow-lg ring-4 ring-white">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                                 <path d="M12 5v14M5 12h14"/>
                                             </svg>
                                         </span>
-                                        <span class="mt-1 text-[11px] font-medium {{ request()->routeIs($item['route']) ? 'text-primary-700' : 'text-neutral-500' }}">{{ $item['label'] }}</span>
+                                        <span class="mt-1 text-xs font-medium {{ request()->routeIs($item['route']) ? 'text-primary-700' : 'text-neutral-500' }}">{{ $item['label'] }}</span>
                                     </a>
                                 </li>
                             @else
                                 <li>
-                                    <a href="{{ route($item['route']) }}" class="flex flex-col items-center justify-center gap-1 py-2 min-h-14 text-[11px] font-medium {{ request()->routeIs($item['route']) ? 'text-primary-700' : 'text-neutral-500' }}">
+                                    <a href="{{ route($item['route']) }}" class="flex flex-col items-center justify-center gap-1 py-2 min-h-14 text-xs font-medium rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 {{ request()->routeIs($item['route']) ? 'text-primary-700' : 'text-neutral-500' }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                             <path d="{{ $item['icon'] }}"/>
                                         </svg>

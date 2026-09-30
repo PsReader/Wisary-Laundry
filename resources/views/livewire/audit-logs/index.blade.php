@@ -3,7 +3,7 @@
     {{-- Header --}}
     <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-            <h2 class="text-lg font-bold text-primary-900">Audit Log</h2>
+            <h2 class="text-xl font-bold text-primary-900">Audit Log</h2>
             <p class="text-xs text-neutral-500">Jejak aktivitas pengguna: pesanan, pembayaran, layanan, akun, dan login.</p>
         </div>
     </div>
@@ -42,7 +42,7 @@
                 </select>
             </div>
             <button type="button" wire:click="resetFilters"
-                class="inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 py-2 min-h-10 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-50">Reset</button>
+                class="inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 py-2.5 min-h-12 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-50">Reset</button>
         </div>
     </x-card>
 

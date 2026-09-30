@@ -9,8 +9,11 @@
 ])
 
 @php
-    $fieldId = $id ?? $name;
-    $base = 'w-full rounded-lg border bg-white px-3 py-2.5 text-base sm:text-sm text-neutral-950 min-h-12 lg:min-h-10 focus:outline-none focus:ring-2 focus:ring-offset-0 transition';
+    // Mirrors x-input: derive the id from the wire:model binding when no
+    // name/id is given, so <label for> always resolves to a real control.
+    $wireModel = $attributes->get('wire:model') ?: $attributes->get('wire:model.live') ?: $attributes->get('wire:model.live.debounce.300ms');
+    $fieldId = $id ?? $name ?? (is_string($wireModel) ? $wireModel : null);
+    $base = 'w-full rounded-lg border bg-white px-3 py-2.5 text-base sm:text-sm text-neutral-950 min-h-12 focus:outline-none focus:ring-2 focus:ring-offset-0 transition';
     $bordered = $error ? ' border-danger-700 focus:ring-danger-700' : ' border-neutral-300 focus:ring-primary-700';
 @endphp
 
@@ -30,6 +33,6 @@
     </select>
 
     @if ($error)
-        <p class="mt-1 text-xs text-danger-700" role="alert">{{ $error }}</p>
+        <p class="mt-1 text-sm text-danger-700" role="alert">{{ $error }}</p>
     @endif
 </div>

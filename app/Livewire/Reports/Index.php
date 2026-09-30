@@ -13,8 +13,10 @@ use App\Models\Refund;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
+#[Title('Laporan')]
 class Index extends Component
 {
     public string $from = '';

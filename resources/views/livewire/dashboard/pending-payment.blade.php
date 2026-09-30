@@ -40,7 +40,7 @@
             @if ($order->payments->isNotEmpty() || $order->refunds->isNotEmpty())
                 <div class="border-t border-neutral-100 pt-3">
                     <details class="group">
-                        <summary class="flex cursor-pointer items-center justify-between text-sm font-semibold text-primary-700 list-none min-h-10">
+                        <summary class="flex cursor-pointer items-center justify-between text-sm font-semibold text-primary-700 list-none min-h-12">
                             Riwayat pembayaran
                             <span class="text-neutral-500 group-open:hidden">Buka</span>
                             <span class="text-neutral-500 hidden group-open:inline">Tutup</span>
@@ -63,7 +63,7 @@
                             @endforelse
 
                             @forelse ($order->refunds->sortByDesc('refunded_at') as $refund)
-                                <li class="flex items-baseline justify-between gap-3 rounded-lg bg-red-50/60 px-3 py-2">
+                                <li class="flex items-baseline justify-between gap-3 rounded-lg bg-danger-50/60 px-3 py-2">
                                     <div class="min-w-0">
                                         <p class="text-sm font-medium text-danger-700">Refund {{ format_rupiah($refund->amount) }}</p>
                                         <p class="text-xs text-neutral-500">{{ \App\Models\Payment::methodLabel($refund->method) }} — {{ $refund->reason }}</p>
@@ -93,7 +93,7 @@
 
     @if ($this->unpaidOrders->isNotEmpty())
         <div class="pt-1 text-right">
-            <a href="{{ route('orders') }}" class="inline-flex items-center gap-1 text-sm font-semibold text-primary-700 hover:text-primary-800 min-h-10">
+            <a href="{{ route('orders') }}" class="inline-flex items-center gap-1 text-sm font-semibold text-primary-700 hover:text-primary-800 min-h-12">
                 Lihat semua
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M5 12h14M13 6l6 6-6 6"/>
@@ -104,7 +104,7 @@
 
     <x-modal name="payment-modal" :show="false" focusable>
         <form wire:submit="submitPayment" class="p-6">
-            <h2 class="text-lg font-semibold text-primary-900">Catat Pembayaran</h2>
+            <h2 class="text-xl font-semibold text-primary-900">Catat Pembayaran</h2>
             @if ($paymentOrderId)
                 @php $paymentOrder = \App\Models\Order::find($paymentOrderId); @endphp
                 @if ($paymentOrder)
@@ -155,7 +155,7 @@
             </div>
 
             <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-                <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 lg:min-h-10 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
                     Batal
                 </button>
                 <x-button type="submit" class="sm:min-w-32" wire:loading.attr="disabled">Simpan Pembayaran</x-button>
@@ -165,7 +165,7 @@
 
     <x-modal name="refund-modal" :show="false" focusable>
         <form wire:submit="submitRefund" class="p-6">
-            <h2 class="text-lg font-semibold text-primary-900">Kirim Refund</h2>
+            <h2 class="text-xl font-semibold text-primary-900">Kirim Refund</h2>
             @if ($refundOrderId)
                 @php $refundOrder = \App\Models\Order::find($refundOrderId); @endphp
                 @if ($refundOrder)
@@ -217,7 +217,7 @@
             </div>
 
             <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-                <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 lg:min-h-10 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
                     Batal
                 </button>
                 <x-button type="submit" class="sm:min-w-32" wire:loading.attr="disabled">Simpan Refund</x-button>

@@ -64,7 +64,7 @@
     @if (auth()->user()->isSuperAdmin())
         <x-modal name="service-form" :show="false" focusable>
         <form wire:submit="save" class="p-6">
-            <h2 class="text-lg font-semibold text-primary-900">{{ $formMode === 'edit' ? 'Edit Layanan' : 'Tambah Layanan' }}</h2>
+            <h2 class="text-xl font-semibold text-primary-900">{{ $formMode === 'edit' ? 'Edit Layanan' : 'Tambah Layanan' }}</h2>
             <p class="mt-1 text-sm text-neutral-600">
                 {{ $formMode === 'edit' ? 'Perubahan harga hanya berlaku untuk pesanan baru.' : 'Layanan baru akan muncul pada form pesanan setelah disimpan.' }}
             </p>
@@ -86,7 +86,7 @@
                         wire:model.blur="category"
                         list="service-categories"
                         required
-                        class="w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-neutral-950 min-h-12 lg:min-h-10 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-offset-0 transition {{ $errors->first('category') ? 'border-danger-700 focus:ring-danger-700' : 'border-neutral-300 focus:ring-primary-700' }}"
+                        class="w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-neutral-950 min-h-12 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-offset-0 transition {{ $errors->first('category') ? 'border-danger-700 focus:ring-danger-700' : 'border-neutral-300 focus:ring-primary-700' }}"
                     >
                     <datalist id="service-categories">
                         @foreach ($this->existing_categories as $category)
@@ -127,7 +127,7 @@
             </div>
 
             <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-                <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 lg:min-h-10 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
                     Batal
                 </button>
                 <x-button type="submit" class="sm:min-w-32" wire:loading.attr="disabled">{{ $formMode === 'edit' ? 'Simpan Perubahan' : 'Simpan Layanan' }}</x-button>

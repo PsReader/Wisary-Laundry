@@ -49,9 +49,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Auto-dismiss toasts
+    // Toast: success/info auto-dismiss; error/warning persist (doc requires the
+    // cause stay readable), dismissible on click.
     document.querySelectorAll('[data-toast]').forEach((toast) => {
         toast.classList.remove('hidden');
+
+        if (['error', 'warning'].includes(toast.dataset.toastType)) {
+            toast.classList.add('cursor-pointer');
+            toast.addEventListener('click', () => toast.classList.add('hidden'));
+            return;
+        }
+
         setTimeout(() => {
             toast.classList.add('hidden');
         }, 4000);
