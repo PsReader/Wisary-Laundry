@@ -23,7 +23,7 @@
         <x-label for="{{ $fieldId }}" :required="$required">{{ $label }}</x-label>
     @endif
 
-    <input type="{{ $type }}" name="{{ $name }}" id="{{ $fieldId }}" {{ $attributes->except(['class', 'label', 'required', 'error', 'helptext', 'type', 'name', 'id']) }} class="{{ $base . $bordered }}">
+    <input type="{{ $type }}" name="{{ $name }}" id="{{ $fieldId }}" {{ $attributes->except(['class', 'label', 'required', 'error', 'helptext', 'type', 'name', 'id']) }} class="{{ $base . $bordered . ($label ? ' mt-1.5' : '') }}">
 
     @if ($helptext)
         <p class="mt-1 text-xs text-neutral-500">{{ $helptext }}</p>

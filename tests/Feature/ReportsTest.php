@@ -41,7 +41,7 @@ class ReportsTest extends TestCase
         $component = Livewire::actingAs($this->superAdmin())->test(Index::class);
 
         $component->assertOk();
-        $component->assertSee('Laporan Operasional');
+        $component->assertSee('Laporan operasional, ekspor data, dan aktivitas staf.');
         $component->assertSee('Jumlah Pesanan');
         $component->assertSee('Aktivitas Staf');
     }
@@ -69,7 +69,7 @@ class ReportsTest extends TestCase
 
         $component = Livewire::actingAs($this->superAdmin())->test(Index::class);
 
-        $component->assertSee('Laporan Operasional');
+        $component->assertSee('Laporan operasional, ekspor data, dan aktivitas staf.');
         $component->assertSee('3', false);
         $component->assertSee('Diterima', false);
         $component->assertSee('Siap Diambil', false);

@@ -3,12 +3,12 @@
     {{-- Filters --}}
     <div class="flex flex-col gap-2">
         {{-- Search + date --}}
-        <div class="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-3">
+        <div class="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-3 lg:items-end">
             <x-input
                 type="search"
                 wire:model.live.debounce.300ms="search"
-                placeholder="Cari nomor pesanan, nama, atau nomor WhatsApp..."
-                label=""
+                label="Cari pesanan"
+                placeholder="No. pesanan, nama, atau nomor WhatsApp..."
                 helptext=""
             />
             <div>
@@ -186,7 +186,7 @@
     {{-- Cards (mobile) --}}
     <div class="sm:hidden space-y-3">
         @forelse ($orders as $order)
-            <a href="{{ route('orders.show', $order) }}" class="block rounded-xl border border-neutral-200 bg-white p-4 shadow-xs hover:shadow-sm transition-shadow">
+            <a href="{{ route('orders.show', $order) }}" class="block rounded-xl border border-neutral-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
                 <div class="flex items-start justify-between gap-2">
                     <div class="min-w-0">
                         <p class="font-semibold text-primary-700">№ {{ $order->order_number }}</p>

@@ -3,8 +3,7 @@
     {{-- Header --}}
     <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-            <h2 class="text-xl font-bold text-primary-900">Audit Log</h2>
-            <p class="text-xs text-neutral-500">Jejak aktivitas pengguna: pesanan, pembayaran, layanan, akun, dan login.</p>
+            <p class="text-sm text-neutral-600">Jejak aktivitas pengguna: pesanan, pembayaran, layanan, akun, dan login.</p>
         </div>
     </div>
 

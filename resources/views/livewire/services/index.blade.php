@@ -127,9 +127,7 @@
             </div>
 
             <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-                <button type="button" x-data @click="$dispatch('close-modal', {})" class="flex items-center justify-center px-4 py-3 min-h-12 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
-                    Batal
-                </button>
+                <x-button type="button" variant="secondary" x-data @click="$dispatch('close-modal', {})">Batal</x-button>
                 <x-button type="submit" class="sm:min-w-32" wire:loading.attr="disabled">{{ $formMode === 'edit' ? 'Simpan Perubahan' : 'Simpan Layanan' }}</x-button>
             </div>
         </form>

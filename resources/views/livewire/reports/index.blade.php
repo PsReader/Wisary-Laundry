@@ -3,9 +3,9 @@
     {{-- Header --}}
     <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-            <h2 class="text-xl font-bold text-primary-900">Laporan Operasional</h2>
+            <p class="text-sm text-neutral-600">Laporan operasional, ekspor data, dan aktivitas staf.</p>
             @if ($range !== null)
-                <p class="text-xs text-neutral-500">Periode {{ format_date($range[0]) }} — {{ format_date($range[1]) }}</p>
+                <p class="mt-0.5 text-xs text-neutral-500">Periode {{ format_date($range[0]) }} — {{ format_date($range[1]) }}</p>
             @endif
         </div>
     </div>
