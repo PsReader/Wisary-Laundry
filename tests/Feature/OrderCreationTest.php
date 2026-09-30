@@ -254,6 +254,23 @@ class OrderCreationTest extends TestCase
         $this->assertSame('Jl. Melati No. 5', $customer->address);
     }
 
+    public function test_new_customer_modal_prefills_from_search_term(): void
+    {
+        Livewire::actingAs($this->staff())
+            ->test(Create::class)
+            ->set('customer_search', 'Siti Aminah')
+            ->call('openNewCustomer')
+            ->assertSet('customer_name', 'Siti Aminah')
+            ->assertSet('customer_whatsapp', '');
+
+        Livewire::actingAs($this->staff())
+            ->test(Create::class)
+            ->set('customer_search', '081234567890')
+            ->call('openNewCustomer')
+            ->assertSet('customer_name', '081234567890')
+            ->assertSet('customer_whatsapp', '081234567890');
+    }
+
     public function test_new_customer_validation_rejects_duplicate_whatsapp(): void
     {
         Customer::factory()->create(['whatsapp' => '081234567890']);

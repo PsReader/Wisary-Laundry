@@ -153,8 +153,9 @@ class Create extends Component
 
     public function openNewCustomer(): void
     {
-        $this->customer_name = '';
-        $this->customer_whatsapp = '';
+        $term = trim($this->customer_search);
+        $this->customer_name = $term;
+        $this->customer_whatsapp = preg_match('/^08[0-9]{8,13}$/', $term) ? $term : '';
         $this->customer_address = null;
         $this->customer_notes = null;
         $this->resetValidation([
