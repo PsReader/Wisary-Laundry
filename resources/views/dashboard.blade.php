@@ -16,10 +16,6 @@
         'readyForPickup' => Order::where('status', Order::STATUS_SIAP_DIAMBIL)
             ->where('handover_status', Order::HANDOVER_BELUM_DISERAHKAN)
             ->count(),
-        'delivery' => Order::where('method', Order::METHOD_DIANTAR)
-            ->where('handover_status', Order::HANDOVER_BELUM_DISERAHKAN)
-            ->where('status', '!=', Order::STATUS_DIBATALKAN)
-            ->count(),
         'unpaid' => Order::whereIn('payment_status', [Order::PAYMENT_BELUM_LUNAS, Order::PAYMENT_LUNAS_SEBAGIAN])
             ->where('status', '!=', Order::STATUS_DIBATALKAN)
             ->count(),
@@ -29,21 +25,13 @@
             ->count(),
         'revenueToday' => \App\Models\Payment::where('received_at', '>=', $todayStart)
             ->sum('amount'),
-        'notHandedOver' => Order::where('handover_status', Order::HANDOVER_BELUM_DISERAHKAN)
-            ->where('status', '!=', Order::STATUS_DIBATALKAN)
-            ->count(),
     ];
 @endphp
 
 <x-app-layout title="Dasbor" :breadcrumbs="[['label' => 'Dasbor']]">
-    <div class="flex items-center justify-between gap-3">
-        <div>
-            <h2 class="text-xl font-bold text-primary-900">Ringkasan {{ format_date($todayStart) }}</h2>
-        </div>
-        <a href="{{ route('orders.create') }}" class="inline-flex items-center justify-center rounded-lg bg-primary-700 px-4 py-2.5 min-h-12 text-sm font-semibold text-white transition-colors hover:bg-primary-800">
-            Buat Pesanan
-        </a>
-    </div>
+    <x-slot name="headerActions">
+        <x-button href="{{ route('orders.create') }}">Buat Pesanan</x-button>
+    </x-slot>
 
     <div class="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <x-stat-card
@@ -66,12 +54,6 @@
             :indicator="['text' => 'Belum Diserahkan', 'dot' => 'bg-warning-700', 'class' => 'text-warning-700']"
         />
         <x-stat-card
-            label="Delivery"
-            :value="$kpi['delivery']"
-            icon="M21 8v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10M21 8l-5-5v5M9 21v-2a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"
-            tone="info"
-        />
-        <x-stat-card
             label="Belum Lunas"
             :value="$kpi['unpaid']"
             icon="M19 5H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zM16 12h.01"
@@ -85,28 +67,23 @@
             tone="danger"
             :indicator="['text' => 'Lewat estimasi', 'dot' => 'bg-danger-700', 'class' => 'text-danger-700']"
         />
-        <x-stat-card
-            class="col-span-2 lg:col-span-1"
-            label="Pendapatan Hari Ini"
-            value="{{ format_rupiah((float) $kpi['revenueToday']) }}"
-            icon="M2 6h20v12H2zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM6 9h.01M18 15h.01"
-            solid
-        />
-        <x-stat-card
-            class="col-span-2 lg:col-span-1"
-            label="Menunggu Serah Terima"
-            :value="$kpi['notHandedOver']"
-            icon="M21 8l-9-5-9 5v8l9 5 9-5V8zM3 8l9 5 9-5M12 13v8"
-            tone="neutral"
-        />
+        @if (auth()->user()->isSuperAdmin())
+            <x-stat-card
+                class="col-span-2 lg:col-span-1"
+                label="Pendapatan Hari Ini"
+                value="{{ format_rupiah((float) $kpi['revenueToday']) }}"
+                icon="M2 6h20v12H2zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM6 9h.01M18 15h.01"
+                solid
+            />
+        @endif
     </div>
 
     <div class="mt-6 grid gap-6 lg:grid-cols-2">
-        <x-card title="Perlu Ditindaklanjuti — Menunggu Serah Terima ({{ $kpi['readyForPickup'] }})">
+        <x-card title="Menunggu Serah Terima">
             <livewire:dashboard.pending-handover />
         </x-card>
 
-        <x-card title="Perlu Ditindaklanjuti — Belum Lunas ({{ $kpi['unpaid'] }})">
+        <x-card title="Belum Lunas">
             <livewire:dashboard.pending-payment />
         </x-card>
     </div>
