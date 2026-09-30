@@ -4,6 +4,8 @@
     $todayStart = now()->startOfDay();
     $now = now();
 
+    $isSuperAdmin = auth()->user()->isSuperAdmin();
+
     $kpi = [
         'ordersToday' => Order::where('received_at', '>=', $todayStart)->count(),
         'inProgress' => Order::whereIn('status', [
@@ -61,15 +63,16 @@
             :indicator="['text' => 'Perlu tindakan', 'dot' => 'bg-danger-700', 'class' => 'text-danger-700']"
         />
         <x-stat-card
+            class="{{ $isSuperAdmin ? 'col-span-2 lg:col-span-2' : 'col-span-2 lg:col-span-4' }}"
             label="Terlambat"
             :value="$kpi['late']"
             icon="M12 8h.01M12 12v4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"
             tone="danger"
             :indicator="['text' => 'Lewat estimasi', 'dot' => 'bg-danger-700', 'class' => 'text-danger-700']"
         />
-        @if (auth()->user()->isSuperAdmin())
+        @if ($isSuperAdmin)
             <x-stat-card
-                class="col-span-2 lg:col-span-1"
+                class="col-span-2 lg:col-span-2"
                 label="Pendapatan Hari Ini"
                 value="{{ format_rupiah((float) $kpi['revenueToday']) }}"
                 icon="M2 6h20v12H2zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM6 9h.01M18 15h.01"
