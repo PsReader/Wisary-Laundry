@@ -52,7 +52,7 @@ These are locked-in decisions from the spec. Never violate them:
 
 - **Weight billing:** Round up to whole kg. Minimum billing is 4 kg (e.g., 3.5 kg → 4 kg, 4.6 kg → 5 kg).
 - **Unit services:** No minimum kg rule. Charged per unit.
-- **Order number format:** `{sequential_number}{DDMMYYYY}` with no separators. Example: `3702972026` = order #3702 on 7 Sep 2026.
+- **Order number format:** `{sequential_number}{DDMMYYYY}` with no separators, zero-padded (4-digit running number, 2-digit day/month) — e.g. `370207092026` = order #3702 on 7 Sep 2026.
 - **Status flow:** Diterima → Sedang Dicuci → Sedang Dikeringkan → Sedang Disetrika → Sedang Dilipat → Siap Diambil. Also: Dibatalkan. There is **no "Selesai" status** — completion is tracked via handover status.
 - **Handover statuses:** Belum Diserahkan, Sudah Diambil, Sudah Diantar.
 - **Kilat:** Always promises same-day completion — no cutoff, no warning, no manual date picker (whole `settings` stack removed 15 Sep 2026).

@@ -257,7 +257,7 @@ Membuat alur utama untuk menerima laundry dan menghasilkan pesanan baru.
 - [x] Menampilkan nomor WhatsApp pelanggan.
 - [x] Menyimpan alamat delivery jika metode Diantar.
 - [x] Membuat nomor pesanan berdasarkan nomor urut total dan tanggal.
-- [x] Menggunakan format seperti `3702972026`.
+- [x] Menggunakan format seperti `370207092026`.
 - [x] Memastikan nomor pesanan unik dan tidak berubah.
 - [x] Menyimpan salinan nama layanan, tipe harga, harga, dan aturan harga pada detail pesanan.
 

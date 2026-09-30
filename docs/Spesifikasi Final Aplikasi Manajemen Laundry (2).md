@@ -124,19 +124,19 @@ Satu pesanan dapat berisi beberapa layanan berbasis kilogram dan unit sekaligus.
 
 ### 5.1 Format nomor pesanan
 
-Nomor pesanan menggunakan nomor urut total yang digabungkan dengan tanggal pesanan tanpa pemisah. Komponen tanggal tidak menggunakan pemisah dan tidak perlu menambahkan angka nol di depan hari atau bulan. Format mengikuti contoh yang digunakan saat ini:
+Nomor pesanan yang diterbitkan sistem berupa gabungan nomor urut total dan tanggal diterimanya pesanan tanpa pemisah. Nomor urut di-pad ke kiri menjadi 4 digit (mis. `0001`, `3702`), dan komponen tanggal memakai `DDMMYYYY` dengan hari dan bulan masing-masing 2 digit (mis. `07092026` untuk 7 September 2026). Format:
 
 ```text
-{nomor urut total}{tanggal}{bulan}{tahun}
+{nomor urut 4 digit}{tanggal DD}{bulan MM}{tahun YYYY}
 ```
 
-Contoh nomor pesanan saat ini adalah:
+Contoh nomor pesanan:
 
 ```text
-3702972026
+370207092026
 ```
 
-Contoh tersebut dibaca sebagai nomor urut total `3702` dan tanggal `9/7/2026`. Sistem harus memastikan nomor pesanan tetap unik dan tidak berubah setelah pesanan dibuat. Detail tanggal dan nomor urut tetap ditampilkan terpisah pada halaman detail pesanan untuk mencegah ambiguitas ketika nomor urut semakin panjang.
+Contoh tersebut dibaca sebagai nomor urut total `3702` dan tanggal `7/9/2026`. Sistem harus memastikan nomor pesanan tetap unik dan tidak berubah setelah pesanan dibuat. Detail tanggal dan nomor urut tetap ditampilkan terpisah pada halaman detail pesanan untuk mencegah ambiguitas ketika nomor urut semakin panjang. (Ralat 30 Sep 2026: contoh nota lama `3702972026` tanpa padding nol adalah format nota sebelum aplikasi; sistem menerbitkan format ber-padding di atas.)
 
 ### 5.2 Zona waktu dan format tampilan
 
@@ -463,7 +463,7 @@ Aplikasi dianggap memenuhi kebutuhan utama apabila:
 - Harga pesanan lama tidak berubah setelah harga layanan diperbarui.
 - Super Admin dapat menambahkan, mengubah, dan menonaktifkan layanan.
 - Super Admin dapat mengubah harga final dengan alasan yang tercatat.
-- Nomor pesanan mengikuti format nomor urut total dan tanggal, seperti `3702972026`.
+- Nomor pesanan mengikuti format nomor urut total dan tanggal, seperti `370207092026`.
 - Seluruh tanggal dan waktu menggunakan WIB.
 - Pesanan Kilat dijanjikan selesai pada hari yang sama.
 - Pesanan dapat ditandai Sudah Diambil atau Sudah Diantar tanpa status Selesai tambahan.
@@ -491,7 +491,7 @@ Semua keputusan utama berikut telah ditetapkan:
 - Minimum penagihan layanan kilogram adalah 4 kg.
 - Estimasi waktu menggunakan hari kalender.
 - Waktu dan tanggal menggunakan WIB.
-- Format nomor pesanan mengikuti nomor urut total dan tanggal, dengan contoh `3702972026`.
+- Format nomor pesanan mengikuti nomor urut total dan tanggal, dengan contoh `370207092026`.
 - Layanan Kilat selesai pada hari yang sama; tidak ada konsep cutoff.
 - Delivery gratis.
 - Status serah terima adalah Sudah Diambil atau Sudah Diantar dan menjadi penanda akhir proses.
