@@ -13,15 +13,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route('dashboard'));
 
-Route::get('/health', function () {
-    return response()->json([
-        'status' => 'ok',
-        'app' => config('app.name'),
-        'timezone' => config('app.timezone'),
-        'time' => now()->toDateTimeString(),
-    ]);
-});
-
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', fn () => view('dashboard'))->name('dashboard');
 

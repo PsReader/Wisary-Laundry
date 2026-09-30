@@ -27,16 +27,6 @@ if (! function_exists('format_date')) {
     }
 }
 
-if (! function_exists('format_time_wib')) {
-    /**
-     * Format waktu WIB sesuai spesifikasi, contoh: "15.00 WIB".
-     */
-    function format_time_wib(string $hhmm): string
-    {
-        return str_replace(':', '.', $hhmm).' WIB';
-    }
-}
-
 if (! function_exists('format_datetime_wib')) {
     /**
      * Format tanggal dan waktu WIB, contoh: "9 September 2026 · 14.05 WIB".

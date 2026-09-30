@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['name', 'category', 'pricing_type', 'unit', 'price', 'estimated_days', 'is_same_day', 'is_active'])]
 class Service extends Model
@@ -31,11 +30,6 @@ class Service extends Model
             'is_same_day' => 'boolean',
             'is_active' => 'boolean',
         ];
-    }
-
-    public function orderItems(): HasMany
-    {
-        return $this->hasMany(OrderItem::class);
     }
 
     public static function pricingTypeLabel(string $pricingType): string
