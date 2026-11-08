@@ -3,6 +3,7 @@
 namespace App\Livewire\Orders;
 
 use App\Models\Order;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Computed;
@@ -14,6 +15,8 @@ use Livewire\WithPagination;
 class Index extends Component
 {
     use WithPagination;
+
+    public string $tab = 'active';
 
     public string $search = '';
 
@@ -36,6 +39,7 @@ class Index extends Component
     protected function queryString(): array
     {
         return [
+            'tab' => ['except' => 'active'],
             'search' => ['except' => '', 'as' => 'q'],
             'statusFilter' => ['except' => ''],
             'paymentFilter' => ['except' => ''],
@@ -48,12 +52,27 @@ class Index extends Component
         ];
     }
 
+    public function setTab(string $tab): void
+    {
+        $this->tab = $tab === 'cancelled' ? 'cancelled' : 'active';
+        $this->statusFilter = '';
+        $this->resetPage();
+    }
+
     public function render(): View
     {
-        $orders = $this->baseQuery()
-            ->when($this->statusFilter, fn (Builder $q, string $s) => $q->where('status', $s))
-            ->orderBy($this->sortBy, $this->sortDir === 'desc' ? 'desc' : 'asc')
-            ->paginate(15);
+        $query = $this->baseQuery();
+
+        if ($this->tab === 'cancelled') {
+            $query = $query->where('status', Order::STATUS_DIBATALKAN);
+        } else {
+            $query = $query->where('status', '!=', Order::STATUS_DIBATALKAN)
+                ->when($this->statusFilter, fn (Builder $q, string $s) => $q->where('status', $s));
+        }
+
+        $orders = $query
+            ->orderBy($this->tab === 'cancelled' ? 'cancelled_at' : $this->sortBy, $this->tab === 'cancelled' ? 'desc' : ($this->sortDir === 'desc' ? 'desc' : 'asc'))
+            ->paginate(10);
 
         return view('livewire.orders.index', ['orders' => $orders]);
     }
@@ -64,7 +83,12 @@ class Index extends Component
     #[Computed]
     public function statusCounts(): array
     {
+        if ($this->tab === 'cancelled') {
+            return [];
+        }
+
         return $this->baseQuery()
+            ->where('status', '!=', Order::STATUS_DIBATALKAN)
             ->selectRaw('status, count(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status')
@@ -140,6 +164,11 @@ class Index extends Component
             $this->recent7Filter = '7';
         }
 
+        $this->resetPage();
+    }
+
+    public function updatingSearch(): void
+    {
         $this->resetPage();
     }
 

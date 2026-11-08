@@ -44,9 +44,9 @@ class AuditFeed
     /**
      * Opsi filter jenis aksi untuk tampilan audit log.
      *
-     * @return array<string, string>
+     * @return array<string, string> Filter value mapped to its Indonesian label.
      */
-    public static function groups(): array
+    public static function groupOptions(): array
     {
         return [
             self::GROUP_ORDER_CREATED => 'Pesanan Dibuat',
@@ -70,16 +70,24 @@ class AuditFeed
      * Baris ternormalkan, diurutkan menurun berdasarkan waktu.
      *
      * @param  int  $limit  batas baris per sumber sebelum digabung
-     * @return Collection<int, array<string, mixed>>
+     * @return Collection<int, array{
+     *     at: Carbon, userId: ?int, user: string, type: string, detail: string,
+     *     orderId: ?int, orderNumber: ?string
+     * }>
      */
-    public static function feed(Carbon $from, Carbon $to, ?int $userId = null, ?string $group = null, int $limit = 500): Collection
-    {
+    public static function feed(
+        Carbon $from,
+        Carbon $to,
+        ?int $userId = null,
+        ?string $group = null,
+        int $limit = 500,
+    ): Collection {
         $rows = collect();
 
-        $pick = fn (?string $current) => $group === null || $group === $current;
-        $userMatch = fn (?int $actorId) => $userId === null || $userId === $actorId;
+        $includesGroup = fn (?string $currentGroup) => $group === null || $group === $currentGroup;
+        $matchesUser = fn (?int $actorId) => $userId === null || $userId === $actorId;
 
-        if ($pick(self::GROUP_ORDER_CREATED)) {
+        if ($includesGroup(self::GROUP_ORDER_CREATED)) {
             $orders = Order::query()
                 ->with(['createdBy'])
                 ->whereBetween('created_at', [$from, $to])
@@ -88,11 +96,11 @@ class AuditFeed
                 ->get();
 
             foreach ($orders as $order) {
-                if (! $userMatch($order->created_by)) {
+                if (! $matchesUser($order->created_by)) {
                     continue;
                 }
 
-                $rows->push(self::row(
+                $rows->push(self::buildFeedEntry(
                     at: $order->created_at,
                     userId: $order->created_by,
                     userName: $order->createdBy?->name,
@@ -104,7 +112,7 @@ class AuditFeed
             }
         }
 
-        if ($pick(self::GROUP_ORDER_STATUS)) {
+        if ($includesGroup(self::GROUP_ORDER_STATUS)) {
             $histories = OrderStatusHistory::query()
                 ->with(['user', 'order'])
                 ->whereBetween('created_at', [$from, $to])
@@ -115,7 +123,7 @@ class AuditFeed
             foreach ($histories as $history) {
                 $order = $history->order;
 
-                if (! $userMatch($history->user_id)) {
+                if (! $matchesUser($history->user_id)) {
                     continue;
                 }
 
@@ -125,7 +133,7 @@ class AuditFeed
                     ? 'Pesanan dibatalkan: '.$note
                     : $note;
 
-                $rows->push(self::row(
+                $rows->push(self::buildFeedEntry(
                     at: $history->created_at,
                     userId: $history->user_id,
                     userName: $history->user?->name,
@@ -137,7 +145,7 @@ class AuditFeed
             }
         }
 
-        if ($pick(self::GROUP_ORDER_HANDOVER)) {
+        if ($includesGroup(self::GROUP_ORDER_HANDOVER)) {
             $events = OrderHandoverHistory::query()
                 ->with(['recordedBy', 'order'])
                 ->whereBetween('occurred_at', [$from, $to])
@@ -146,7 +154,7 @@ class AuditFeed
                 ->get();
 
             foreach ($events as $event) {
-                if (! $userMatch($event->recorded_by)) {
+                if (! $matchesUser($event->recorded_by)) {
                     continue;
                 }
 
@@ -156,7 +164,7 @@ class AuditFeed
                     ? 'Pengantaran gagal: '.$reason
                     : 'Serah terima: '.$label;
 
-                $rows->push(self::row(
+                $rows->push(self::buildFeedEntry(
                     at: $event->occurred_at,
                     userId: $event->recorded_by,
                     userName: $event->recordedBy?->name,
@@ -168,7 +176,7 @@ class AuditFeed
             }
         }
 
-        if ($pick(self::GROUP_ORDER_PAYMENT)) {
+        if ($includesGroup(self::GROUP_ORDER_PAYMENT)) {
             $payments = Payment::query()
                 ->with(['user', 'order'])
                 ->whereBetween('received_at', [$from, $to])
@@ -177,11 +185,11 @@ class AuditFeed
                 ->get();
 
             foreach ($payments as $payment) {
-                if (! $userMatch($payment->user_id)) {
+                if (! $matchesUser($payment->user_id)) {
                     continue;
                 }
 
-                $rows->push(self::row(
+                $rows->push(self::buildFeedEntry(
                     at: $payment->received_at,
                     userId: $payment->user_id,
                     userName: $payment->user?->name,
@@ -193,7 +201,7 @@ class AuditFeed
             }
         }
 
-        if ($pick(self::GROUP_ORDER_REFUND)) {
+        if ($includesGroup(self::GROUP_ORDER_REFUND)) {
             $refunds = Refund::query()
                 ->with(['processedBy', 'order'])
                 ->whereBetween('refunded_at', [$from, $to])
@@ -202,11 +210,11 @@ class AuditFeed
                 ->get();
 
             foreach ($refunds as $refund) {
-                if (! $userMatch($refund->processed_by)) {
+                if (! $matchesUser($refund->processed_by)) {
                     continue;
                 }
 
-                $rows->push(self::row(
+                $rows->push(self::buildFeedEntry(
                     at: $refund->refunded_at,
                     userId: $refund->processed_by,
                     userName: $refund->processedBy?->name,
@@ -218,7 +226,7 @@ class AuditFeed
             }
         }
 
-        if ($pick(self::GROUP_ORDER_PRICE_ADJUST)) {
+        if ($includesGroup(self::GROUP_ORDER_PRICE_ADJUST)) {
             $adjustments = OrderPriceAdjustment::query()
                 ->with(['user', 'order'])
                 ->whereBetween('created_at', [$from, $to])
@@ -227,11 +235,11 @@ class AuditFeed
                 ->get();
 
             foreach ($adjustments as $adjustment) {
-                if (! $userMatch($adjustment->user_id)) {
+                if (! $matchesUser($adjustment->user_id)) {
                     continue;
                 }
 
-                $rows->push(self::row(
+                $rows->push(self::buildFeedEntry(
                     at: $adjustment->created_at,
                     userId: $adjustment->user_id,
                     userName: $adjustment->user?->name,
@@ -243,7 +251,12 @@ class AuditFeed
             }
         }
 
-        if ($pick(self::GROUP_ORDER_ESTIMATE) || $pick(self::GROUP_CUSTOMER) || $pick(self::GROUP_SERVICE) || $pick(self::GROUP_USER)) {
+        if (
+            $includesGroup(self::GROUP_ORDER_ESTIMATE)
+            || $includesGroup(self::GROUP_CUSTOMER)
+            || $includesGroup(self::GROUP_SERVICE)
+            || $includesGroup(self::GROUP_USER)
+        ) {
             $auditLogs = AuditLog::query()
                 ->with(['user'])
                 ->whereBetween('created_at', [$from, $to])
@@ -254,11 +267,11 @@ class AuditFeed
             foreach ($auditLogs as $log) {
                 $type = self::auditGroup($log->action);
 
-                if ($type === null || ! $pick($type) || ! $userMatch($log->user_id)) {
+                if ($type === null || ! $includesGroup($type) || ! $matchesUser($log->user_id)) {
                     continue;
                 }
 
-                $rows->push(self::row(
+                $rows->push(self::buildFeedEntry(
                     at: $log->created_at,
                     userId: $log->user_id,
                     userName: $log->user?->name,
@@ -270,7 +283,11 @@ class AuditFeed
             }
         }
 
-        if ($pick(self::GROUP_LOGIN) || $pick(self::GROUP_LOGOUT) || $pick(self::GROUP_LOGIN_FAILED)) {
+        if (
+            $includesGroup(self::GROUP_LOGIN)
+            || $includesGroup(self::GROUP_LOGOUT)
+            || $includesGroup(self::GROUP_LOGIN_FAILED)
+        ) {
             $activities = LoginActivity::query()
                 ->with(['user'])
                 ->whereBetween('created_at', [$from, $to])
@@ -281,7 +298,7 @@ class AuditFeed
             foreach ($activities as $activity) {
                 $type = self::loginGroup($activity->type);
 
-                if ($type === null || ! $pick($type) || ! $userMatch($activity->user_id)) {
+                if ($type === null || ! $includesGroup($type) || ! $matchesUser($activity->user_id)) {
                     continue;
                 }
 
@@ -293,7 +310,7 @@ class AuditFeed
                     default => 'Percobaan login gagal untuk '.$who,
                 };
 
-                $rows->push(self::row(
+                $rows->push(self::buildFeedEntry(
                     at: $activity->created_at,
                     userId: $activity->user_id,
                     userName: $activity->user?->name,
@@ -366,11 +383,20 @@ class AuditFeed
     }
 
     /**
-     * @param  array<string, mixed>  $row
-     * @return array<string, mixed>
+     * @return array{
+     *     at: Carbon, userId: ?int, user: string, type: string, detail: string,
+     *     orderId: ?int, orderNumber: ?string
+     * }
      */
-    private static function row(Carbon $at, ?int $userId, ?string $userName, string $type, string $detail, ?int $orderId = null, ?string $orderNumber = null): array
-    {
+    private static function buildFeedEntry(
+        Carbon $at,
+        ?int $userId,
+        ?string $userName,
+        string $type,
+        string $detail,
+        ?int $orderId = null,
+        ?string $orderNumber = null,
+    ): array {
         return [
             'at' => $at,
             'userId' => $userId,

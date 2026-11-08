@@ -40,7 +40,6 @@ class OrderHandoverTest extends TestCase
         $this->assertDatabaseHas('orders', [
             'id' => $order->id,
             'handover_status' => Order::HANDOVER_SUDAH_DIAMBIL,
-            'method' => Order::METHOD_DIAMBIL,
         ]);
 
         $history = $order->handoverHistories()->firstOrFail();
@@ -61,7 +60,6 @@ class OrderHandoverTest extends TestCase
         $this->assertDatabaseHas('orders', [
             'id' => $order->id,
             'handover_status' => Order::HANDOVER_SUDAH_DIANTAR,
-            'method' => Order::METHOD_DIANTAR,
             'delivery_address' => 'Jl. Contoh No. 1, Jakarta',
         ]);
     }

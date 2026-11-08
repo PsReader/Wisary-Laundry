@@ -4,35 +4,16 @@
 >
     @php
         $users = \App\Models\User::query()->orderBy('role')->orderBy('name')->get();
-        $active = \App\Models\User::activeAccountCount();
-        $slug = \App\Models\User::accountSlotAvailable(\App\Models\User::ROLE_SUPER_ADMIN);
-        $staffSlot = \App\Models\User::accountSlotAvailable(\App\Models\User::ROLE_STAFF);
     @endphp
 
     <x-slot name="headerActions">
-        <div class="flex items-center gap-2">
-            <x-badge color="bg-primary-100 text-primary-800">{{ $active }} dari 5 akun aktif</x-badge>
-            @if ($staffSlot)
-                <x-button x-data @click="$dispatch('open-modal', 'create-staff')">Tambah Staf</x-button>
-            @endif
-        </div>
+        <x-button x-data @click="$dispatch('open-modal', 'create-staff')">Tambah Staf</x-button>
     </x-slot>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-        <x-stat-card label="Super Admin Aktif" :value="\App\Models\User::activeSuperAdminCount()" :indicator="['text' => 'Maks. 1', 'dot' => 'bg-primary-700', 'class' => 'text-primary-700']" />
-        <x-stat-card label="Staf Aktif" :value="\App\Models\User::activeStaffCount()" :indicator="['text' => 'Maks. 4', 'dot' => 'bg-primary-700', 'class' => 'text-primary-700']" />
+        <x-stat-card label="Super Admin Aktif" :value="\App\Models\User::activeSuperAdminCount()" />
+        <x-stat-card label="Staf Aktif" :value="\App\Models\User::activeStaffCount()" />
     </div>
-
-    @if (! $slug)
-        <div class="mb-4 bg-warning-100 text-warning-700 border border-warning-200 rounded-xl px-4 py-3 text-sm font-medium">
-            Batas Super Admin aktif sudah terpenuhi (1 akun).
-        </div>
-    @endif
-    @if (! $staffSlot)
-        <div class="mb-4 bg-warning-100 text-warning-700 border border-warning-200 rounded-xl px-4 py-3 text-sm font-medium">
-            Batas Staf aktif sudah terpenuhi (4 akun). Akun baru harus menonaktifkan akun lain terlebih dahulu.
-        </div>
-    @endif
 
     <x-card title="Akun Pengguna">
         <div class="overflow-x-auto">
@@ -59,7 +40,7 @@
                             </td>
                             <td class="py-3 text-right whitespace-nowrap">
                                 <div class="inline-flex items-center gap-1">
-                                    @if ($user->id !== auth()->id() && ! ($user->isSuperAdmin() && \App\Models\User::activeSuperAdminCount() <= 1))
+                                    @if ($user->id !== auth()->id() && ! ($user->is_active && $user->isSuperAdmin() && \App\Models\User::activeSuperAdminCount() <= 1))
                                     <form method="POST" action="{{ route('staff.toggle-active') }}">
                                         @csrf
                                         <input type="hidden" name="user_id" value="{{ $user->id }}">

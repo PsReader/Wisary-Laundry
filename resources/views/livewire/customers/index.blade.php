@@ -59,29 +59,7 @@
                 </table>
             </div>
 
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-4">
-                <p class="text-xs text-neutral-500">
-                    Menampilkan {{ $this->customers->firstItem() }}–{{ $this->customers->lastItem() }} dari {{ $this->customers->total() }} pelanggan
-                </p>
-                <div class="flex items-center gap-2">
-                    <button
-                        type="button"
-                        wire:click="previousPage"
-                        @disabled($this->customers->onFirstPage())
-                        class="inline-flex items-center justify-center px-4 py-2.5 min-h-12 text-sm font-medium rounded-lg border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                        Sebelumnya
-                    </button>
-                    <button
-                        type="button"
-                        wire:click="nextPage"
-                        @disabled(! $this->customers->hasMorePages())
-                        class="inline-flex items-center justify-center px-4 py-2.5 min-h-12 text-sm font-medium rounded-lg border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                        Berikutnya
-                    </button>
-                </div>
-            </div>
+            <x-pagination :paginator="$this->customers" label="pelanggan" />
         @endif
     </x-card>
 
@@ -111,30 +89,8 @@
                     helptext="Awali dengan 08 dan 8–13 digit angka."
                     :error="$errors->first('whatsapp')"
                 />
-                <div>
-                    <x-label for="address">Alamat utama</x-label>
-                    <textarea
-                        id="address"
-                        wire:model.blur="address"
-                        rows="3"
-                        class="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-950 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-700 min-h-12 transition"
-                    ></textarea>
-                    @if ($errors->first('address'))
-                        <p class="mt-1 text-xs text-danger-700" role="alert">{{ $errors->first('address') }}</p>
-                    @endif
-                </div>
-                <div>
-                    <x-label for="notes">Catatan pelanggan</x-label>
-                    <textarea
-                        id="notes"
-                        wire:model.blur="notes"
-                        rows="3"
-                        class="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-950 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-700 min-h-12 transition"
-                    ></textarea>
-                    @if ($errors->first('notes'))
-                        <p class="mt-1 text-xs text-danger-700" role="alert">{{ $errors->first('notes') }}</p>
-                    @endif
-                </div>
+                <x-textarea label="Alamat utama" wire:model.blur="address" rows="3" :error="$errors->first('address')" />
+                <x-textarea label="Catatan pelanggan" wire:model.blur="notes" rows="3" :error="$errors->first('notes')" />
             </div>
 
             <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">

@@ -4,14 +4,20 @@ namespace App\Livewire\AuditLogs;
 
 use App\Models\User;
 use App\Support\AuditFeed;
+use Illuminate\Contracts\View\View;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Title('Log Aktivitas')]
 class Index extends Component
 {
+    use WithPagination;
+
     #[Url]
     public string $from = '';
 
@@ -31,7 +37,7 @@ class Index extends Component
 
     public function applyFilters(): void
     {
-        // Status URL diperbarui otomatis oleh atribut #[Url].
+        $this->resetPage();
     }
 
     public function resetFilters(): void
@@ -42,9 +48,30 @@ class Index extends Component
         $this->group = '';
 
         $this->applyDefaults();
+        $this->resetPage();
     }
 
-    public function render()
+    public function updatedFrom(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedTo(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedUser(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedGroup(): void
+    {
+        $this->resetPage();
+    }
+
+    public function render(): View
     {
         $from = Carbon::parse($this->from !== '' ? $this->from : now()->startOfMonth()->toDateString())->startOfDay();
         $to = Carbon::parse($this->to !== '' ? $this->to : now()->toDateString())->endOfDay();
@@ -58,11 +85,26 @@ class Index extends Component
             $to,
             $this->user ?: null,
             $this->group !== '' ? $this->group : null,
+            500,
+        );
+
+        $page = $this->paginators['page'] ?? 1;
+        $perPage = 10;
+        $items = $feed->forPage($page, $perPage)->values();
+        $paginator = new LengthAwarePaginator(
+            $items,
+            $feed->count(),
+            $perPage,
+            $page,
+            [
+                'path' => request()->url(),
+                'query' => request()->query(),
+            ]
         );
 
         return view('livewire.audit-logs.index', [
-            'feed' => $feed,
-            'groups' => AuditFeed::groups(),
+            'feed' => $paginator,
+            'groups' => AuditFeed::groupOptions(),
             'users' => User::query()->orderBy('name')->get(['id', 'name']),
             'fromValue' => $this->from,
             'toValue' => $this->to,

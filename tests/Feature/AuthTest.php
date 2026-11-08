@@ -134,21 +134,6 @@ class AuthTest extends TestCase
         ])->assertForbidden();
     }
 
-    public function test_account_limits_enforced(): void
-    {
-        User::factory()->create(['role' => User::ROLE_SUPER_ADMIN, 'is_active' => true]);
-        User::factory()->count(4)->create(['role' => User::ROLE_STAFF, 'is_active' => true]);
-
-        $this->assertFalse(User::accountSlotAvailable(User::ROLE_SUPER_ADMIN));
-        $this->assertFalse(User::accountSlotAvailable(User::ROLE_STAFF));
-    }
-
-    public function test_account_slot_opens_when_limit_not_reached(): void
-    {
-        $this->assertTrue(User::accountSlotAvailable(User::ROLE_SUPER_ADMIN));
-        $this->assertTrue(User::accountSlotAvailable(User::ROLE_STAFF));
-    }
-
     public function test_login_is_rate_limited_after_five_failed_attempts(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_SUPER_ADMIN, 'password' => 'password']);

@@ -19,7 +19,7 @@
         <div class="code">500</div>
         <h1 class="title">Terjadi Kesalahan</h1>
         <p class="desc">Maaf, terjadi kendala teknis. Data Anda aman. Silakan coba lagi beberapa saat.</p>
-        <a class="btn" href="{{ route('dashboard') }}">Kembali ke Dasbor</a>
+        <a class="btn" href="{{ route('dashboard') }}">Kembali ke Dashboard</a>
     </div>
 </body>
 </html>

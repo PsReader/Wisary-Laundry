@@ -1,5 +1,7 @@
 # Design System dan Hierarki UI WISARY Laundry
 
+**Status:** Peta UI yang sudah diselaraskan dengan aplikasi per 8 November 2026. Prinsip visual tetap menjadi panduan; bagian aksesibilitas dan QA perangkat yang belum diuji manual adalah target, bukan klaim bahwa seluruh kriteria telah lulus.
+
 ## 1. Identitas Produk
 
 **Nama aplikasi:** WISARY Laundry  
@@ -55,10 +57,10 @@ Informasi berikut mendukung proses kerja:
 Informasi berikut tersedia ketika dibutuhkan, tetapi tidak mendominasi layar:
 
 - Waktu pembuatan dan perubahan.
-- Detail aktivitas staf.
-- Pengaturan layanan.
+- Aktivitas staf dan audit log.
+- Pengelolaan layanan dan akun.
 - Data akun pengguna.
-- Pengaturan sistem.
+- Laporan untuk Super Admin.
 
 ## 4. Skema Warna Brand
 
@@ -104,7 +106,7 @@ Teks utama harus menggunakan `neutral-950` atau `primary-900` pada background te
 
 ## 5. Tipografi
 
-Gunakan satu keluarga font sans-serif yang mudah dibaca, seperti **Inter** atau **Plus Jakarta Sans**.
+Gunakan keluarga font sans-serif **Inter**, sesuai konfigurasi Tailwind aplikasi.
 
 | Gaya | Ukuran desktop | Berat | Penggunaan |
 |---|---:|---:|---|
@@ -124,9 +126,9 @@ WISARY Laundry biasanya digunakan melalui ponsel oleh staf saat menerima, mempro
 
 | Fitur | Mobile web | Desktop web |
 |---|---|---|
-| Navigasi | Hamburger menu atau bottom navigation untuk aksi utama | Sidebar navigation |
+| Navigasi | Drawer akun dan bottom navigation lima item | Sidebar navigation |
 | Interaksi | Tap, swipe, scroll, dan input sentuh | Click, hover, keyboard, dan scroll |
-| Target interaksi | Minimal 48 × 48 px | Minimal 32 × 32 px, tetap nyaman diklik |
+| Target interaksi | Minimal 48 × 48 px | Target umum juga dijaga minimal 48 px pada kontrol aplikasi |
 | Struktur konten | Satu kolom vertikal | Multi-kolom sesuai kebutuhan |
 | Daftar data | Kartu ringkas atau tabel yang dapat digeser | Tabel multi-kolom |
 | Aksi utama | Tombol lebar dan mudah dijangkau ibu jari | Tombol mengikuti hierarki desktop |
@@ -147,13 +149,13 @@ WISARY Laundry biasanya digunakan melalui ponsel oleh staf saat menerima, mempro
 - Sidebar tetap di sisi kiri dengan lebar 248 px.
 - Area konten menggunakan lebar fleksibel.
 - Header konten memiliki judul halaman, breadcrumb, dan aksi utama.
-- Gunakan grid 12 kolom untuk halaman dashboard.
-- Gunakan jarak internal 24 px pada kartu utama.
+- Dashboard menggunakan grid dua kolom pada layar kecil dan empat kolom mulai breakpoint `lg`.
+- Kartu menggunakan padding responsif, 16 px pada layar kecil dan 24 px mulai `sm`.
 
 ### Tablet
 
-- Sidebar dapat diperkecil menjadi mode ikon.
-- Grid berubah menjadi 6 kolom.
+- Sebelum breakpoint desktop (`lg`), navigasi tetap menggunakan drawer dan bottom navigation.
+- Grid halaman mengikuti layout responsif masing-masing fitur.
 - Tabel panjang dapat digeser secara horizontal.
 
 ### Mobile
@@ -162,8 +164,8 @@ WISARY Laundry biasanya digunakan melalui ponsel oleh staf saat menerima, mempro
 - Grid berubah menjadi satu kolom.
 - Aksi utama menggunakan tombol lebar penuh jika diperlukan.
 - Tabel berubah menjadi kartu ringkas atau menyediakan scroll horizontal.
-- Form pesanan menggunakan langkah berurutan agar tidak terlalu padat.
-- Hamburger menu menjadi pola navigasi utama, dengan bottom navigation opsional untuk Dasbor, Buat Pesanan, Daftar Pesanan, dan Profil.
+- Form pesanan tetap satu halaman dengan bagian pelanggan, layanan, dan serah terima.
+- Bottom navigation berisi Dashboard, Buat Pesanan, Daftar Pesanan, Pelanggan, dan Layanan & Harga; drawer menyediakan navigasi dan akun.
 - Semua elemen interaktif memiliki target sentuh minimal 48 × 48 px.
 - Konten penting tidak boleh tersembunyi hanya karena pengguna tidak mengarahkan kursor.
 
@@ -180,74 +182,72 @@ Breakpoints yang disarankan:
 
 Menu utama disusun berdasarkan frekuensi penggunaan:
 
-1. **Dasbor**
+1. **Dashboard**
 2. **Buat Pesanan**
 3. **Daftar Pesanan**
 4. **Pelanggan**
 5. **Layanan & Harga**
-6. **Laporan**
-7. **Manajemen Staf**
-8. **Pengaturan**
-9. **Keluar**
+6. **Laporan** (Super Admin)
+7. **Audit Log** (Super Admin)
+8. **Manajemen Staf** (Super Admin)
+9. **Profil / Keluar** melalui menu akun
 
-Menu **Manajemen Staf** hanya terlihat oleh Super Admin. Menu aktif harus memiliki indikator yang jelas berupa background biru muda, garis aksen, atau ikon yang berubah warna.
+Tidak ada halaman Pengaturan atau menu Pesanan Batal tersendiri. Pesanan batal merupakan tab di Daftar Pesanan. Menu aktif menggunakan penanda visual; akses Super Admin juga diperiksa di server.
 
 ## 9. Halaman Utama
 
-### 9.1 Dasbor
+### 9.1 Dashboard
 
 Dasbor harus memprioritaskan kondisi operasional hari ini. Metrik utama ditempatkan paling atas dalam bentuk KPI cards sehingga staf dapat memahami kondisi toko sebelum membuka detail.
 
-Urutan komponen:
+Komponen yang ada saat ini:
 
-1. Judul halaman dan tombol **Buat Pesanan**.
-2. Kartu ringkasan: pesanan hari ini, sedang diproses, siap diambil, dan belum lunas.
-3. Daftar pesanan yang perlu ditindaklanjuti.
-4. Ringkasan pendapatan.
-5. Grafik batang atau tabel ringkas layanan terlaris.
+1. Judul **Dashboard** dan tombol **Buat Pesanan**.
+2. Kartu Pesanan Hari Ini, Sedang Diproses, Siap Diambil, Belum Lunas, dan Terlambat.
+3. Kartu Pendapatan Hari Ini hanya untuk Super Admin.
+4. Daftar Menunggu Serah Terima dan Belum Lunas.
 
-Kartu status menggunakan angka besar, label jelas, ikon atau indikator tambahan, dan warna fungsional. Warna tidak boleh terlalu dominan sehingga angka tetap menjadi fokus utama. Gunakan grafik batang atau garis yang sederhana; hindari pie chart ketika jumlah kategori banyak karena perbandingannya lebih sulit dibaca.
+Kartu status menggunakan angka, label, ikon/tone, dan teks indikator. Grafik tidak ditampilkan saat ini.
 
 ### 9.2 Buat Pesanan
 
 Form menggunakan satu kolom sebagai default, terutama pada mobile. Label selalu berada di atas input dan tidak digantikan oleh placeholder. Pada layar yang lebih besar, bagian yang tidak saling bergantung dapat ditempatkan berdampingan tanpa mengorbankan urutan pengisian.
 
-Form dibagi menjadi beberapa bagian:
+Form yang tersedia saat ini:
 
 1. **Pelanggan**: cari pelanggan atau tambah pelanggan baru.
-2. **Layanan**: pilih layanan kilogram atau unit.
-3. **Berat dan jumlah**: masukkan berat aktual atau jumlah unit.
-4. **Serah terima**: pilih Diambil Pelanggan atau Diantar.
-5. **Pembayaran**: pilih status dan metode pembayaran.
-6. **Ringkasan**: tampilkan estimasi selesai, berat tagihan, total, dan sisa pembayaran.
-7. **Simpan**: tombol utama untuk membuat pesanan.
+2. **Layanan**: cari dan pilih satu atau beberapa layanan kilogram/unit.
+3. **Berat dan jumlah**: masukkan berat aktual atau jumlah unit; setiap baris dapat diberi catatan.
+4. **Serah terima**: pilih Diambil Pelanggan atau Diantar dan isi alamat jika diperlukan.
+5. **Catatan pesanan**.
+6. **Ringkasan**: tampilkan estimasi selesai dan total.
+7. **Simpan Pesanan**.
 
-Ringkasan harga harus selalu terlihat pada desktop dan menempel di bagian bawah layar pada mobile saat form digulir. Validasi field dilakukan segera setelah pengguna selesai mengisi field atau berpindah ke field berikutnya, bukan hanya setelah tombol submit ditekan.
+Pembayaran dicatat setelah pesanan dibuat, dari Dashboard atau detail pesanan; pemilihan pembayaran bukan bagian dari form pembuatan. Ringkasan harga dibuat sticky pada layar panjang. Validasi tetap dijalankan di server saat submit, dan validasi field tertentu berlangsung saat blur.
 
 ### 9.3 Daftar Pesanan
 
-Daftar pesanan menyediakan:
+Daftar pesanan memiliki tab **Daftar Pesanan** dan **Pesanan Batal**. Untuk daftar aktif tersedia:
 
 - Pencarian nomor pesanan, nama pelanggan, atau nomor WhatsApp.
-- Filter status pengerjaan.
-- Filter status pembayaran.
-- Filter pickup atau delivery.
-- Filter tanggal.
-- Pengurutan berdasarkan pesanan terbaru atau estimasi selesai.
+- Pill status dengan jumlah yang mengikuti filter aktif; status tanpa hasil disembunyikan.
+- Chip tanggal Hari Ini, Kemarin, dan 7 Hari.
+- Panel Filter untuk tanggal tepat, status pembayaran, serah terima, dan metode.
+- Pagination.
 
-Kolom utama tabel:
+Di desktop, data ditampilkan sebagai tabel; pada layar kecil daftar memakai kartu. Tabel desktop saat ini mencakup:
 
 | Kolom | Keterangan |
 |---|---|
-| Nomor pesanan | Identitas utama pesanan |
+| Nomor | Nomor pesanan; dapat diurutkan |
 | Pelanggan | Nama dan nomor WhatsApp |
-| Layanan | Ringkasan layanan |
-| Estimasi selesai | Tanggal target |
 | Status | Status pengerjaan |
 | Pembayaran | Status pembayaran |
-| Serah terima | Pickup atau delivery |
 | Total | Total tagihan |
-| Aksi | Lihat atau ubah |
+| Tanggal | Tanggal diterima; dapat diurutkan |
+| Metode | Diambil pelanggan atau diantar |
+
+Layanan dan estimasi tidak menjadi kolom pada daftar saat ini; buka detail pesanan untuk informasi lengkap. Baris tabel dan kartu mobile membuka detail pesanan.
 
 ### 9.4 Detail Pesanan
 
@@ -263,9 +263,13 @@ Halaman pelanggan menggunakan tabel dengan pencarian cepat. Detail pelanggan men
 
 ### 9.6 Layanan & Harga
 
-Halaman ini menggunakan tabel CRUD dengan kolom nama layanan, kategori, tipe harga, harga, estimasi selesai, status aktif, dan aksi.
+Halaman ini menyediakan pencarian dan tabel nama layanan, kategori, tipe harga, harga, estimasi selesai, serta status aktif. Semua pengguna terautentikasi dapat melihatnya; Staf mendapat tampilan baca saja.
 
-Layanan yang sudah digunakan tidak dihapus permanen. Gunakan tindakan **Nonaktifkan** untuk menjaga riwayat pesanan.
+Tambah, edit, aktif/nonaktif hanya tersedia untuk Super Admin. Layanan yang sudah digunakan tidak dihapus permanen; tindakan **Nonaktifkan** menjaga riwayat pesanan lama.
+
+### 9.7 Laporan
+
+Laporan hanya tersedia untuk Super Admin. Filter periode menyediakan Hari Ini, 7 Hari, Bulan Ini, Bulan Lalu, serta tanggal Dari/Sampai; preset yang rentangnya cocok ditandai aktif. Konten dibagi ke tab **Keuangan**, **Pengiriman & Serah Terima**, dan **Aktivitas**. Link ekspor CSV tidak ditampilkan pada halaman, walaupun endpoint ekspor tetap tersedia untuk Super Admin.
 
 ## 10. Komponen UI
 
@@ -313,9 +317,9 @@ Setiap tindakan pengguna harus menghasilkan feedback yang jelas.
 |---|---|
 | Data berhasil disimpan | Toast sukses di kanan atas atau area yang terlihat |
 | Data gagal disimpan | Alert error dengan penyebab dan langkah perbaikan |
-| Proses sedang berjalan | Spinner pada tombol dan tombol dinonaktifkan sementara |
+| Proses sedang berjalan | Tombol submit dinonaktifkan selama request; spinner tidak digunakan secara konsisten |
 | Status berhasil diubah | Toast dan pembaruan badge secara langsung |
-| Sesi akan berakhir | Peringatan yang memungkinkan pengguna melanjutkan sesi |
+| Sesi berakhir karena tidak aktif | Pengguna harus login kembali |
 | Data kosong | Empty state dengan penjelasan dan aksi berikutnya |
 | Hasil pencarian kosong | Pesan pencarian tidak ditemukan dan opsi menghapus filter |
 
@@ -357,7 +361,7 @@ Gunakan pola yang sama di seluruh aplikasi:
 
 ## 14. Accessibility
 
-Aplikasi harus mendukung aksesibilitas dasar:
+Aplikasi menerapkan sebagian aksesibilitas dasar. Daftar berikut menjadi target yang harus diuji sebelum menyatakan QA aksesibilitas selesai:
 
 - Gunakan elemen HTML semantik seperti `nav`, `main`, `header`, `form`, dan `button`.
 - Semua input memiliki label yang terhubung secara teknis.

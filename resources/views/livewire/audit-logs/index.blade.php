@@ -20,26 +20,20 @@
                 <input type="date" id="to" wire:model.live.debounce.300ms="to"
                     class="w-full rounded-lg border bg-white px-3 py-2.5 min-h-12 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-offset-0 transition border-neutral-300 focus:ring-primary-700">
             </div>
-            <div>
-                <label for="group" class="block text-xs font-semibold text-neutral-600 mb-1.5">Jenis Aksi</label>
-                <select id="group" wire:model.live="group"
-                    class="w-full rounded-lg border bg-white px-3 py-2.5 min-h-12 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-offset-0 transition border-neutral-300 focus:ring-primary-700">
-                    <option value="">Semua Jenis</option>
-                    @foreach ($groups as $value => $label)
-                        <option value="{{ $value }}">{{ $label }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <label for="user" class="block text-xs font-semibold text-neutral-600 mb-1.5">Pengguna</label>
-                <select id="user" wire:model.live="user"
-                    class="w-full rounded-lg border bg-white px-3 py-2.5 min-h-12 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-offset-0 transition border-neutral-300 focus:ring-primary-700">
-                    <option value="">Semua Pengguna</option>
-                    @foreach ($users as $userOption)
-                        <option value="{{ $userOption->id }}">{{ $userOption->name }}</option>
-                    @endforeach
-                </select>
-            </div>
+            <x-select
+                id="group"
+                wire:model.live="group"
+                label="Jenis Aksi"
+                placeholder="Semua Jenis"
+                :options="$groups"
+            />
+            <x-select
+                id="user"
+                wire:model.live="user"
+                label="Pengguna"
+                placeholder="Semua Pengguna"
+                :options="$users->mapWithKeys(fn ($userOption) => [$userOption->id => $userOption->name])->all()"
+            />
             <button type="button" wire:click="resetFilters"
                 class="inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 py-2.5 min-h-12 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-50">Reset</button>
         </div>
@@ -93,6 +87,8 @@
                     </div>
                 @endforeach
             </div>
+
+            <x-pagination :paginator="$feed" label="aktivitas" />
         @endif
     </x-card>
 </div>

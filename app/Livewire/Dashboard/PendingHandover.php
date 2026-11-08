@@ -31,7 +31,7 @@ class PendingHandover extends Component
             ->where('handover_status', Order::HANDOVER_BELUM_DISERAHKAN)
             ->orderByRaw('estimated_completion_at IS NULL, estimated_completion_at ASC')
             ->orderBy('received_at')
-            ->limit(5)
+            ->limit(3)
             ->get();
     }
 

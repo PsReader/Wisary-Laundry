@@ -1,16 +1,18 @@
 # Spesifikasi Final Aplikasi Manajemen Laundry
 
-**Versi:** 1.1  
+**Versi:** 1.2
 **Bahasa aplikasi:** Bahasa Indonesia  
 **Platform:** Web app  
 **Teknologi yang disepakati:** Laravel, Blade, Livewire, Tailwind CSS, dan MySQL/MariaDB  
-**Penyusun:** Manus AI
+**Status:** Diselaraskan dengan implementasi aplikasi per 8 November 2026.
+
+Dokumen ini mencatat aturan bisnis dan perilaku yang benar-benar tersedia di aplikasi. Daftar deployment dan QA yang belum selesai ditandai sebagai pekerjaan lanjutan, bukan dianggap sudah diterapkan.
 
 ## 1. Ringkasan
 
 Aplikasi ini adalah web app berbahasa Indonesia untuk mengelola pelanggan dan pesanan laundry. Sistem mendukung layanan berbasis kilogram dan unit, perhitungan harga otomatis, status pengerjaan, pembayaran, pickup, serta delivery gratis.
 
-Aplikasi ditujukan untuk satu usaha laundry dengan maksimal lima akun pengguna, terdiri dari satu Super Admin dan empat Staf.
+Aplikasi ditujukan untuk satu usaha laundry. Jumlah akun Super Admin dan Staf tidak dibatasi.
 
 ## 2. Ruang Lingkup
 
@@ -31,7 +33,9 @@ Aplikasi ditujukan untuk satu usaha laundry dengan maksimal lima akun pengguna, 
 - Penyesuaian harga final oleh Super Admin dengan alasan yang tercatat.
 - Nomor pesanan otomatis berdasarkan nomor urut total dan tanggal pesanan.
 - Pengaturan waktu Indonesia Barat (WIB).
-- Audit aktivitas, backup, ekspor data, dan kesiapan deployment produksi.
+- Audit aktivitas dan endpoint ekspor data untuk Super Admin.
+- Alur reset password dengan kode OTP email.
+- Kesiapan backup dan deployment produksi sebagai pekerjaan operasional lanjutan.
 
 ### Fitur di luar ruang lingkup
 
@@ -154,7 +158,7 @@ Perhitungan estimasi menggunakan **hari kalender**, termasuk Sabtu, Minggu, dan 
 - Express: satu hari kalender.
 - Kilat: selesai pada hari yang sama.
 
-Tanggal estimasi selesai dihitung otomatis ketika pesanan dibuat. Super Admin dapat mengubah tanggal estimasi secara manual jika diperlukan.
+Tanggal estimasi selesai dihitung otomatis ketika pesanan dibuat. Super Admin dapat mengubah tanggal estimasi dari halaman detail pesanan. Pengubahan ini adalah override administratif; tidak mengubah estimasi default layanan.
 
 ## 6. Status Pesanan
 
@@ -168,7 +172,7 @@ Status pengerjaan yang tersedia adalah:
 6. Siap Diambil.
 7. Dibatalkan.
 
-Setiap perubahan status harus menyimpan status sebelumnya, status baru, tanggal dan waktu perubahan, pengguna yang melakukan perubahan, serta catatan jika ada.
+Setiap perubahan status harus menyimpan status sebelumnya, status baru, tanggal dan waktu perubahan, pengguna yang melakukan perubahan, serta catatan jika ada. Pada halaman detail, tombol tahap Setrika hanya ditampilkan jika layanan pesanan memerlukan setrika; tahap Lipat hanya ditampilkan untuk layanan yang namanya menunjukkan cuci-lipat. Validasi transisi tetap dilakukan di server.
 
 ## 7. Pickup, Delivery, dan Serah Terima
 
@@ -188,6 +192,8 @@ Status serah terima yang digunakan adalah:
 - **Sudah diantar**.
 
 Status serah terima menjadi penanda akhir proses dan tidak memerlukan status pengerjaan **Selesai**. Pesanan pickup menggunakan status **Sudah diambil** setelah pelanggan mengambil laundry. Pesanan delivery menggunakan status **Sudah diantar** setelah laundry diterima pelanggan. Sistem menyimpan tanggal, waktu, dan staf yang mencatat serah terima.
+
+Serah terima hanya dapat dicatat setelah pesanan siap dan tidak dapat dicatat ulang setelah berhasil. Jika delivery gagal, alasan kegagalan dicatat dan percobaan serah terima berikutnya tetap dapat dilakukan.
 
 Untuk delivery, sistem juga menyimpan:
 
@@ -263,7 +269,7 @@ Metode pembayaran yang tersedia:
 
 Untuk pembayaran sebagian, sistem menyimpan total tagihan, jumlah yang telah dibayar, sisa pembayaran, serta riwayat pembayaran. Sistem mengizinkan beberapa pembayaran sebagian dan menghitung sisa pembayaran secara otomatis. Jumlah pembayaran tidak boleh melebihi total tagihan kecuali diproses sebagai refund atau koreksi yang memiliki riwayat.
 
-Refund disimpan secara terpisah dengan jumlah refund, alasan, pengguna yang memproses, metode pengembalian, serta tanggal dan waktu refund.
+Refund disimpan secara terpisah dengan jumlah refund, alasan, pengguna yang memproses, metode pengembalian, serta tanggal dan waktu refund. Refund tidak menghapus pembayaran awal; nilai refund mengurangi pembayaran bersih dan dapat membuka kembali sisa tagihan. Pesanan yang dibatalkan tidak dapat menerima pembayaran baru, tetapi refund tetap dapat dicatat.
 
 ## 11. Perubahan Harga dan Penyesuaian Manual
 
@@ -277,18 +283,18 @@ Super Admin dapat mengubah harga final suatu pesanan secara manual. Setiap perub
 - Nama Super Admin.
 - Tanggal dan waktu perubahan.
 
-Staf dapat mengubah detail pesanan dalam operasional toko, termasuk data pelanggan, layanan, jumlah atau berat, dan status laundry.
+Staf dapat mengelola data pelanggan, membuat pesanan, mencatat pembayaran/refund dan serah terima, serta mengubah status pengerjaan. Form edit item pesanan yang sudah tersimpan tidak tersedia. Perubahan harga final dan estimasi selesai adalah tindakan Super Admin.
 
-Super Admin memiliki seluruh hak Staf dan juga dapat menentukan harga layanan, menambah atau menonaktifkan layanan, mengelola akun Staf, serta mengedit seluruh data. Hak Super Admin-only tetap diperlukan untuk pengelolaan layanan utama, akun, dan tindakan administratif.
+Super Admin memiliki seluruh hak operasional Staf dan juga dapat mengelola layanan/harga default, akun Staf, laporan, audit log, perubahan harga final, estimasi selesai, dan pemulihan pesanan batal. Pembatasan diterapkan di server melalui middleware/policy, bukan hanya dengan menyembunyikan tombol.
 
 ## 12. CRUD Layanan
 
-Menu **Layanan & Harga** harus menyediakan fungsi CRUD:
+Menu **Layanan & Harga** menyediakan daftar dan pencarian layanan untuk semua pengguna terautentikasi. Aksi tambah, edit, aktif/nonaktif hanya tersedia untuk Super Admin. Menu ini tidak menyediakan penghapusan permanen.
 
 - **Create:** menambahkan layanan.
 - **Read:** melihat daftar layanan.
 - **Update:** mengubah nama, kategori, jenis perhitungan, satuan, harga, atau estimasi selesai.
-- **Delete:** menghapus atau menonaktifkan layanan.
+- **Delete:** tidak tersedia; layanan dinonaktifkan agar riwayat pesanan tetap utuh.
 
 Layanan yang sudah digunakan dalam pesanan tidak sebaiknya dihapus secara permanen. Layanan tersebut harus dapat dinonaktifkan sehingga tidak muncul pada pesanan baru, tetapi tetap tersedia dalam riwayat pesanan lama.
 
@@ -303,43 +309,43 @@ Data layanan minimal terdiri dari:
 - Status aktif atau tidak aktif.
 - Opsi layanan Kilat atau same-day.
 
-CRUD juga berlaku untuk data pelanggan dan data pesanan. Pengelolaan akun staf hanya tersedia untuk Super Admin.
+Pelanggan dapat dibuat dan diperbarui, lalu dihapus hanya jika tidak memiliki riwayat pesanan. Pesanan dibuat dan diproses melalui status, pembayaran, refund, serah terima, pembatalan, serta pemulihan; UI tidak menyediakan edit item pesanan yang telah disimpan maupun penghapusan permanen. Pengelolaan akun tersedia untuk Super Admin.
 
 ## 13. Akun dan Hak Akses
 
-Jumlah akun dibatasi maksimal lima akun aktif:
-
-- Satu Super Admin.
-- Empat Staf.
+Aplikasi tidak membatasi jumlah akun aktif Super Admin maupun Staf. Super Admin dapat membuat akun Staf tanpa batas jumlah; akun Super Admin disiapkan melalui seeder/CLI. Setidaknya satu Super Admin harus tetap aktif dan pengguna tidak dapat menonaktifkan akunnya sendiri.
 
 ### 13.1 Super Admin
 
-Super Admin dapat mengelola pelanggan, pesanan, layanan, harga, akun staf, laporan, penyesuaian harga final, dan seluruh riwayat aktivitas.
+Super Admin dapat mengelola pelanggan, pesanan, layanan, harga, akun staf, laporan, audit log, penyesuaian harga final, override estimasi selesai, dan pemulihan pesanan.
 
 ### 13.2 Staf
 
-Staf dapat menambah dan mengedit pelanggan, membuat pesanan, mengubah layanan dan kuantitas pesanan, mengubah status pengerjaan, mencatat pembayaran, memperbarui status serah terima, memperbarui harga final beserta alasannya, serta melihat data pelanggan dan pesanan.
+Staf dapat menambah dan mengedit pelanggan, membuat pesanan, mengubah status pengerjaan, mencatat pembayaran/refund, memperbarui status serah terima, serta melihat layanan, pelanggan, dan pesanan. Staf tidak dapat mengubah item pesanan yang sudah dibuat, mengubah harga final, atau mengubah estimasi selesai.
 
-Staf tidak dapat mengelola akun staf, mengubah daftar layanan utama, mengubah harga default layanan, atau mengubah pengaturan keamanan dan sistem. Staf boleh mengubah harga final pada transaksi tertentu karena mereka menjalankan operasional toko.
+Staf tidak dapat mengelola akun pengguna atau mengubah katalog/harga default layanan. Halaman layanan tersedia untuk dibaca, tetapi aksi pengelolaan hanya untuk Super Admin. Tidak ada halaman Pengaturan di aplikasi.
 
 ## 14. Menu Aplikasi
 
-Menu utama aplikasi:
+Menu aplikasi saat ini:
 
-- Dasbor.
+- Dashboard.
 - Buat Pesanan.
 - Daftar Pesanan.
 - Pelanggan.
 - Layanan & Harga.
-- Laporan.
-- Manajemen Staf.
-- Keluar.
+- Laporan (Super Admin).
+- Audit Log (Super Admin).
+- Manajemen Staf (Super Admin).
+- Profil dan Keluar melalui menu akun.
 
-Dasbor menampilkan pesanan hari ini, pesanan yang sedang diproses, pesanan siap diambil, pesanan delivery, pesanan belum lunas, pesanan terlambat, pendapatan hari ini, dan pesanan yang belum diserahkan.
+Tidak ada menu Pengaturan atau menu terpisah Pesanan Batal. Pesanan batal dapat dilihat pada tab di Daftar Pesanan; pemulihan dilakukan dari detail pesanan.
+
+Dashboard menampilkan Pesanan Hari Ini, Sedang Diproses, Siap Diambil, Belum Lunas, dan Terlambat. Super Admin juga melihat Pendapatan Hari Ini. Daftar Menunggu Serah Terima dan Belum Lunas tampil di bawah kartu. Nilai pendapatan tidak dirender untuk Staf.
 
 ## 15. Pencarian dan Penyaringan
 
-Pesanan dapat dicari atau disaring berdasarkan:
+Pada Daftar Pesanan, pesanan aktif dapat dicari atau disaring berdasarkan:
 
 - Nomor pesanan.
 - Nama pelanggan.
@@ -349,9 +355,11 @@ Pesanan dapat dicari atau disaring berdasarkan:
 - Metode pickup atau delivery.
 - Tanggal pesanan.
 
+Tersedia tab Daftar Pesanan/Pesanan Batal, chip tanggal Hari Ini/Kemarin/7 Hari, pill status dengan jumlah yang tersedia, dan panel Filter untuk pembayaran, serah terima, metode, serta tanggal tepat.
+
 ## 16. Laporan
 
-Laporan awal yang diperlukan adalah:
+Halaman Laporan hanya untuk Super Admin dan menyediakan tab Keuangan, Pengiriman & Serah Terima, serta Aktivitas. Periode dapat dipilih melalui preset Hari Ini, 7 Hari, Bulan Ini, Bulan Lalu atau tanggal Dari/Sampai. Tombol preset menandai pilihan yang sesuai dengan rentang aktif. Data laporan mencakup:
 
 - Jumlah pesanan berdasarkan periode.
 - Pendapatan harian, mingguan, dan bulanan.
@@ -364,6 +372,8 @@ Laporan awal yang diperlukan adalah:
 - Pesanan delivery gagal dan alasannya.
 - Riwayat refund.
 
+Endpoint ekspor CSV pesanan, pembayaran, dan pelanggan tetap tersedia untuk Super Admin, tetapi tautan ekspor tidak ditampilkan pada halaman Laporan saat ini.
+
 ## 17. Pembatalan dan Pemulihan Pesanan
 
 Pembatalan pesanan wajib memerlukan alasan. Pesanan yang dibatalkan tidak boleh dihapus permanen karena tetap diperlukan untuk laporan dan audit.
@@ -371,8 +381,9 @@ Pembatalan pesanan wajib memerlukan alasan. Pesanan yang dibatalkan tidak boleh 
 - Pesanan yang dibatalkan tetap tersedia dalam daftar dan laporan.
 - Alasan pembatalan wajib disimpan.
 - Waktu pembatalan dan pengguna yang membatalkan harus dicatat.
-- Super Admin dapat memulihkan pesanan yang dibatalkan.
+- Super Admin dapat memulihkan pesanan yang dibatalkan dari halaman detail.
 - Pemulihan pesanan harus dicatat dalam audit log.
+- Daftar pesanan batal merupakan tab pada halaman Daftar Pesanan, bukan halaman atau route terpisah.
 
 ## 18. Kebutuhan Keamanan dan Operasional
 
@@ -381,13 +392,13 @@ Kebutuhan berikut merupakan bagian penting dari aplikasi produksi:
 | Kebutuhan | Aturan |
 |---|---|
 | Backup database | Backup terjadwal, lokasi backup terpisah, dan prosedur pemulihan yang diuji. |
-| Reset password | Super Admin memiliki alur reset password yang aman. |
+| Reset password | Pengguna dapat meminta kode OTP 6 digit melalui email; kode disimpan sebagai hash, berlaku 10 menit, maksimal 5 percobaan, dan dibatasi rate limit. Super Admin juga dapat mengatur ulang kata sandi akun dari halaman Manajemen Staf. |
 | Timeout sesi | Sesi pengguna berakhir setelah periode tidak aktif yang dikonfigurasi dan pengguna diarahkan untuk login kembali. |
 | Logout | Pengguna dapat logout dari semua halaman dan sesi aktif ditutup dengan aman. |
 | Login activity | Sistem mencatat login berhasil, login gagal, logout, waktu, pengguna, dan informasi teknis yang diperlukan. |
 | Permission protection | Aksi Super Admin-only dilindungi policy atau middleware Laravel, bukan hanya disembunyikan dari menu. |
 | Error logging | Error aplikasi dicatat tanpa menampilkan detail sensitif kepada pengguna. |
-| Ekspor data | Data pelanggan, pesanan, dan pembayaran dapat diekspor oleh pengguna yang berwenang. |
+| Ekspor data | Endpoint CSV pelanggan, pesanan, dan pembayaran dibatasi untuk Super Admin; link unduhan tidak ditampilkan pada halaman Laporan. |
 | Data historis | Pesanan, pembayaran, refund, dan audit log tidak dapat dihapus sembarangan. |
 | Hosting produksi | Aplikasi memiliki hosting dan domain produksi yang sesuai. |
 | HTTPS/SSL | Seluruh koneksi produksi menggunakan HTTPS dengan sertifikat SSL aktif. |
@@ -395,14 +406,14 @@ Kebutuhan berikut merupakan bagian penting dari aplikasi produksi:
 
 ## 19. Rancangan Teknologi Laravel
 
-Teknologi yang digunakan:
+Teknologi yang digunakan dalam aplikasi saat ini:
 
 | Komponen | Pilihan |
 |---|---|
-| Backend | Laravel |
+| Backend | Laravel 13 |
 | Tampilan | Blade |
-| Interaksi dinamis | Livewire |
-| UI dan styling | Tailwind CSS |
+| Interaksi dinamis | Livewire 4 |
+| UI dan styling | Tailwind CSS 3.4 |
 | Database | MySQL atau MariaDB |
 | Autentikasi | Laravel Breeze atau mekanisme autentikasi Laravel yang setara |
 | Bahasa aplikasi | Bahasa Indonesia |
@@ -427,6 +438,7 @@ Tabel utama yang disarankan:
 | `order_handover_histories` | Menyimpan pickup, delivery, waktu serah terima, dan alasan gagal delivery. |
 | `refunds` | Menyimpan pengembalian pembayaran. |
 | `audit_logs` | Menyimpan aktivitas penting pengguna dan perubahan data. |
+| `login_activities` | Menyimpan aktivitas login berhasil, gagal, dan logout. |
 
 ## 21. Tahapan Pengembangan
 
@@ -497,8 +509,13 @@ Semua keputusan utama berikut telah ditetapkan:
 - Status serah terima adalah Sudah Diambil atau Sudah Diantar dan menjadi penanda akhir proses.
 - Layanan memiliki CRUD.
 - Harga lama tetap berlaku untuk pesanan lama.
-- Staf dapat mengubah detail transaksi operasional. Penyesuaian harga final adalah hak Super Admin saja dan alasannya wajib dicatat.
-- Super Admin dapat mengelola harga default, layanan, akun Staf, dan seluruh data.
+- Staf dapat mengelola pelanggan dan menjalankan operasi pesanan; item pesanan tersimpan tidak dapat diedit dari UI. Penyesuaian harga final dan override estimasi selesai hanya untuk Super Admin.
+- Super Admin dapat mengelola harga default, layanan, akun Staf, laporan, dan audit log; UI tidak menyediakan edit item pesanan tersimpan.
+- Jumlah akun aktif tidak dibatasi; minimal satu Super Admin harus tetap aktif. UI Manajemen Staf membuat akun Staf, bukan akun Super Admin.
+- Halaman Pengaturan dan konfigurasi cutoff Kilat tidak ada. Kilat dijanjikan selesai pada hari yang sama.
+- Reset password pengguna menggunakan kode OTP email; Super Admin dapat mengatur ulang kata sandi akun dari Manajemen Staf.
+- Pesanan batal ditampilkan pada tab Daftar Pesanan, bukan halaman terpisah.
+- Laporan dan ekspor dibatasi untuk Super Admin. Endpoint ekspor CSV tetap aktif walaupun link ekspor di halaman Laporan telah dihapus.
 - Pembatalan memerlukan alasan, tidak menghapus data, dan dapat dipulihkan oleh Super Admin.
 - Pembayaran sebagian, refund, delivery gagal, dan audit aktivitas memiliki riwayat tersendiri.
 - Backup, ekspor data, reset password, timeout sesi, login activity, error logging, hosting, domain, dan HTTPS/SSL termasuk kebutuhan teknis penting.

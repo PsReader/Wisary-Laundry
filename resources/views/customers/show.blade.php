@@ -71,8 +71,8 @@
                                         {{ $names->take(2)->join(', ') }}{{ $names->count() > 2 ? ', …' : '' }}
                                     </td>
                                     <td class="py-3 pr-4 font-medium">{{ format_rupiah((float) $order->total_price) }}</td>
-                                    <td class="py-3 pr-4"><x-badge :status="\App\Models\Order::statusLabel($order->status)">{{ \App\Models\Order::statusLabel($order->status) }}</x-badge></td>
-                                    <td class="py-3"><x-badge :status="\App\Models\Order::paymentLabel($order->payment_status)">{{ \App\Models\Order::paymentLabel($order->payment_status) }}</x-badge></td>
+                                    <td class="py-3 pr-4"><x-badge :status="\App\Models\Order::statusLabel($order->status)" /></td>
+                                    <td class="py-3"><x-badge :status="\App\Models\Order::paymentLabel($order->payment_status)" /></td>
                                 </tr>
                             @endforeach
                         </tbody>

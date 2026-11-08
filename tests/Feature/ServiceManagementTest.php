@@ -40,10 +40,14 @@ class ServiceManagementTest extends TestCase
         $this->actingAs($this->superAdmin())
             ->get('/services')
             ->assertOk()
-            ->assertSee('Cuci Setrika Kilat')
-            ->assertSee('Rp12.000/kg')
             ->assertSee('Tambah Layanan')
             ->assertSee('Nonaktifkan');
+
+        Livewire::actingAs($this->superAdmin())
+            ->test(Index::class)
+            ->set('search', 'Cuci Setrika Kilat')
+            ->assertSee('Cuci Setrika Kilat')
+            ->assertSee('Rp12.000/kg');
     }
 
     public function test_staff_can_view_services_as_read_only(): void

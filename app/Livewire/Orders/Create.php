@@ -19,9 +19,13 @@ use Livewire\Component;
 #[Title('Buat Pesanan')]
 class Create extends Component
 {
+    private const SERVICE_RESULT_LIMIT = 4;
+
     public ?int $customer_id = null;
 
     public string $customer_search = '';
+
+    public string $service_search = '';
 
     public string $method = Order::METHOD_DIAMBIL;
 
@@ -59,26 +63,22 @@ class Create extends Component
             ->get();
     }
 
-    /**
-     * Layanan dikelompokkan per kategori untuk pemilih cepat.
-     *
-     * @return array<string, array<int, array<string, mixed>>>
-     */
     #[Computed]
-    public function groupedServices(): array
+    public function serviceResults(): Collection
     {
+        $term = mb_strtolower(trim($this->service_search));
+
         return $this->services
-            ->groupBy('category')
-            ->mapWithKeys(fn (Collection $group, string $category) => [
-                $category => $group->map(fn (Service $service) => [
-                    'id' => $service->id,
-                    'name' => $service->name,
-                    'price_label' => $service->price_label,
-                    'unit' => $service->pricing_type,
-                ])->values()->all(),
-            ])
-            ->sortBy(fn (array $services) => $services[0]['unit'] === Service::PRICING_TYPE_UNIT)
-            ->all();
+            ->filter(fn (Service $service) => $term === ''
+                || str_contains(mb_strtolower($service->name), $term)
+                || str_contains(mb_strtolower($service->category), $term))
+            ->take(self::SERVICE_RESULT_LIMIT)
+            ->values();
+    }
+
+    public function updatedServiceSearch(): void
+    {
+        $this->resetValidation('items');
     }
 
     #[Computed]
@@ -190,9 +190,13 @@ class Create extends Component
 
     public function addService(int $serviceId): void
     {
+        Service::active()->findOrFail($serviceId);
+
         $this->items[] = $this->newItem();
         $index = array_key_last($this->items);
         $this->items[$index]['service_id'] = $serviceId;
+        $this->service_search = '';
+        $this->resetValidation('items');
 
         $this->resetValidation(
             'items.'.$index.'.service_id',
@@ -218,17 +222,6 @@ class Create extends Component
             'items.'.$index.'.actual_weight',
             'items.'.$index.'.quantity',
         );
-    }
-
-    public function serviceSelected(int $serviceId): bool
-    {
-        foreach ($this->items as $item) {
-            if ((int) ($item['service_id'] ?? 0) === $serviceId) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -363,15 +356,14 @@ class Create extends Component
             $service = $this->services->firstWhere('id', (int) ($item['service_id'] ?? 0));
 
             $rules["$key.service_id"] = ['required', 'integer'];
+            $rules["$key.service_id"][] = function ($attribute, $value, $fail) {
+                if (! Service::active()->whereKey($value)->exists()) {
+                    $fail('Layanan tidak valid atau sudah dinonaktifkan.');
+                }
+            };
             $rules["$key.note"] = ['nullable', 'string', 'max:255'];
 
             if ($service !== null) {
-                $rules["$key.service_id"][] = function ($attribute, $value, $fail) {
-                    if (! Service::active()->whereKey($value)->exists()) {
-                        $fail('Layanan tidak valid atau sudah dinonaktifkan.');
-                    }
-                };
-
                 if ($service->pricing_type === Service::PRICING_TYPE_KG) {
                     $rules["$key.actual_weight"] = ['required', 'numeric', 'gt:0', 'max:999999'];
                 } else {

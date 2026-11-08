@@ -4,10 +4,12 @@ namespace Database\Seeders;
 
 use App\Models\Customer;
 use App\Models\Order;
+use App\Models\OrderHandoverHistory;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\Service;
 use App\Models\User;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Seeder;
 
 class DevSeeder extends Seeder
@@ -34,19 +36,25 @@ class DevSeeder extends Seeder
         $orders = [
             ['customer' => 0, 'status' => Order::STATUS_DITERIMA, 'payment_status' => Order::PAYMENT_BELUM_LUNAS, 'method' => Order::METHOD_DIAMBIL, 'items' => [['service' => 'Cuci Setrika Reguler', 'actual_weight' => 3.0], ['service' => 'Seprei', 'quantity' => 2]]],
             ['customer' => 1, 'status' => Order::STATUS_SEDANG_DICUCI, 'payment_status' => Order::PAYMENT_BELUM_LUNAS, 'method' => Order::METHOD_DIANTAR, 'items' => [['service' => 'Cuci Lipat Express', 'actual_weight' => 5.4]]],
-            ['customer' => 2, 'status' => Order::STATUS_SIAP_DIAMBIL, 'payment_status' => Order::PAYMENT_LUNAS_SEBAGIAN, 'method' => Order::METHOD_DIAMBIL, 'paid' => 0.5, 'items' => [['service' => 'Setrika Kilat', 'actual_weight' => 4.6]]],
-            ['customer' => 3, 'status' => Order::STATUS_SIAP_DIAMBIL, 'payment_status' => Order::PAYMENT_LUNAS, 'method' => Order::METHOD_DIANTAR, 'items' => [['service' => 'Cuci Lipat Reguler', 'actual_weight' => 7.2], ['service' => 'Selimut Besar', 'quantity' => 1]], 'payment_method' => Payment::METHOD_TRANSFER],
+            ['customer' => 2, 'status' => Order::STATUS_SIAP_DIAMBIL, 'payment_status' => Order::PAYMENT_LUNAS_SEBAGIAN, 'method' => Order::METHOD_DIAMBIL, 'paid' => 0.5, 'items' => [['service' => 'Setrika Kilat', 'actual_weight' => 4.6]], 'handover' => ['action' => OrderHandoverHistory::ACTION_SUDAH_DIAMBIL, 'days' => 3, 'note' => 'Diambil pelanggan']],
+            ['customer' => 3, 'status' => Order::STATUS_SIAP_DIAMBIL, 'payment_status' => Order::PAYMENT_LUNAS, 'method' => Order::METHOD_DIANTAR, 'items' => [['service' => 'Cuci Lipat Reguler', 'actual_weight' => 7.2], ['service' => 'Selimut Besar', 'quantity' => 1]], 'payment_method' => Payment::METHOD_TRANSFER, 'handover' => ['action' => OrderHandoverHistory::ACTION_SUDAH_DIANTAR, 'days' => 2, 'note' => 'Diterima langsung oleh pelanggan']],
             ['customer' => 4, 'status' => Order::STATUS_SEDANG_DIKERINGKAN, 'payment_status' => Order::PAYMENT_BELUM_LUNAS, 'method' => Order::METHOD_DIAMBIL, 'items' => [['service' => 'Cuci Setrika Kilat', 'actual_weight' => 2.5], ['service' => 'Bedcover Besar', 'quantity' => 2]]],
             ['customer' => 5, 'status' => Order::STATUS_DIBATALKAN, 'payment_status' => Order::PAYMENT_BELUM_LUNAS, 'method' => Order::METHOD_DIAMBIL, 'items' => [['service' => 'Setrika Reguler', 'actual_weight' => 6.0]], 'cancelled' => 'Pelanggan membatalkan karena jadwal'],
             ['customer' => 6, 'status' => Order::STATUS_SEDANG_DISETRIKA, 'payment_status' => Order::PAYMENT_BELUM_LUNAS, 'method' => Order::METHOD_DIANTAR, 'items' => [['service' => 'Cuci Setrika Express', 'actual_weight' => 4.1]]],
-            ['customer' => 7, 'status' => Order::STATUS_SIAP_DIAMBIL, 'payment_status' => Order::PAYMENT_LUNAS, 'method' => Order::METHOD_DIANTAR, 'items' => [['service' => 'Setrika Express', 'actual_weight' => 8.0], ['service' => 'Seprei Set', 'quantity' => 2]], 'payment_method' => Payment::METHOD_TUNAI],
+            ['customer' => 7, 'status' => Order::STATUS_SIAP_DIAMBIL, 'payment_status' => Order::PAYMENT_LUNAS, 'method' => Order::METHOD_DIANTAR, 'items' => [['service' => 'Setrika Express', 'actual_weight' => 8.0], ['service' => 'Seprei Set', 'quantity' => 2]], 'payment_method' => Payment::METHOD_TUNAI, 'handover' => ['action' => OrderHandoverHistory::ACTION_SUDAH_DIANTAR, 'days' => 1, 'note' => 'Diantar sore hari']],
+            ['customer' => 0, 'status' => Order::STATUS_SIAP_DIAMBIL, 'payment_status' => Order::PAYMENT_LUNAS, 'method' => Order::METHOD_DIAMBIL, 'items' => [['service' => 'Cuci Lipat Reguler', 'actual_weight' => 4.8]], 'payment_method' => Payment::METHOD_TUNAI, 'handover' => ['action' => OrderHandoverHistory::ACTION_SUDAH_DIAMBIL, 'days' => 2, 'note' => 'Diambil pelanggan']],
+            ['customer' => 2, 'status' => Order::STATUS_SIAP_DIAMBIL, 'payment_status' => Order::PAYMENT_BELUM_LUNAS, 'method' => Order::METHOD_DIANTAR, 'items' => [['service' => 'Cuci Setrika Reguler', 'actual_weight' => 6.3]], 'handover' => ['action' => OrderHandoverHistory::ACTION_GAGAL, 'days' => 1, 'failure_reason' => 'Pelanggan tidak di rumah, akan diantar ulang']],
+            ['customer' => 5, 'status' => Order::STATUS_SEDANG_DILIPAT, 'payment_status' => Order::PAYMENT_BELUM_LUNAS, 'method' => Order::METHOD_DIAMBIL, 'items' => [['service' => 'Cuci Lipat Kilat', 'actual_weight' => 3.4]]],
+            ['customer' => 7, 'status' => Order::STATUS_SIAP_DIAMBIL, 'payment_status' => Order::PAYMENT_LUNAS_SEBAGIAN, 'method' => Order::METHOD_DIAMBIL, 'paid' => 0.4, 'items' => [['service' => 'Setrika Express', 'actual_weight' => 3.3]], 'payment_method' => Payment::METHOD_TRANSFER, 'handover' => ['action' => OrderHandoverHistory::ACTION_SUDAH_DIAMBIL, 'days' => 0, 'note' => 'Diambil pelanggan']],
         ];
 
         foreach ($orders as $index => $def) {
+            $receivedAt = now()->subDays($index);
+
             $order = Order::query()->create([
-                'order_number' => $this->orderNumber($index + 1),
+                'order_number' => $this->orderNumber($index + 1, $receivedAt),
                 'customer_id' => $customers[$def['customer']]->id,
-                'received_at' => now()->subDays($index),
+                'received_at' => $receivedAt,
                 'status' => $def['status'],
                 'handover_status' => Order::HANDOVER_BELUM_DISERAHKAN,
                 'payment_status' => $def['payment_status'],
@@ -109,11 +117,29 @@ class DevSeeder extends Seeder
                 'to_status' => $order->status,
                 'user_id' => $staff->id,
             ]);
+
+            if (isset($def['handover'])) {
+                $handover = $def['handover'];
+
+                OrderHandoverHistory::query()->create([
+                    'order_id' => $order->id,
+                    'handover_action' => $handover['action'],
+                    'recorded_by' => $staff->id,
+                    'occurred_at' => now()->subDays($handover['days'] ?? 0),
+                    'note' => $handover['note'] ?? null,
+                    'failure_reason' => $handover['failure_reason'] ?? null,
+                ]);
+
+                // 'gagal' sengaja tidak mengubah handover_status (pesanan masih menunggu serah terima).
+                if ($handover['action'] !== OrderHandoverHistory::ACTION_GAGAL) {
+                    $order->update(['handover_status' => $handover['action']]);
+                }
+            }
         }
     }
 
-    private function orderNumber(int $seq): string
+    private function orderNumber(int $seq, CarbonInterface $date): string
     {
-        return $seq.now()->format('dmY');
+        return sprintf('%04d', $seq).$date->format('dmY');
     }
 }

@@ -41,9 +41,14 @@ class ReportsTest extends TestCase
         $component = Livewire::actingAs($this->superAdmin())->test(Index::class);
 
         $component->assertOk();
-        $component->assertSee('Laporan operasional, ekspor data, dan aktivitas staf.');
-        $component->assertSee('Jumlah Pesanan');
-        $component->assertSee('Aktivitas Staf');
+        $component->assertSee('Laporan operasional dan aktivitas staf.');
+        $component->assertDontSee('Ekspor Data (CSV)');
+        $component->assertDontSee(route('reports.export.orders'));
+        $component->assertDontSee(route('reports.export.payments'));
+        $component->assertDontSee(route('reports.export.customers'));
+        $component->assertSee('Keuangan');
+        $component->assertSee('Aktivitas');
+        $component->assertDontSee('Ringkasan Aktivitas Staf');
     }
 
     public function test_staff_cannot_access_reports_page(): void
@@ -69,10 +74,11 @@ class ReportsTest extends TestCase
 
         $component = Livewire::actingAs($this->superAdmin())->test(Index::class);
 
-        $component->assertSee('Laporan operasional, ekspor data, dan aktivitas staf.');
+        $component->assertSee('Laporan operasional dan aktivitas staf.');
         $component->assertSee('3', false);
         $component->assertSee('Diterima', false);
         $component->assertSee('Siap Diambil', false);
+        $component->assertSee('Jumlah Pesanan');
     }
 
     public function test_revenue_aggregated_daily_and_total(): void
@@ -164,7 +170,9 @@ class ReportsTest extends TestCase
         $order = Order::factory()->ready()->delivery()->create();
         $order->recordHandover('gagal', null, 'Alamat tidak ditemukan', null, $this->superAdmin());
 
-        $component = Livewire::actingAs($this->superAdmin())->test(Index::class);
+        $component = Livewire::actingAs($this->superAdmin())
+            ->test(Index::class)
+            ->call('setTab', 'pengiriman');
 
         $component->assertSee('Delivery Gagal');
         $component->assertSee($order->order_number);
@@ -195,7 +203,9 @@ class ReportsTest extends TestCase
 
         Order::factory()->count(2)->create(['created_by' => $actor->id]);
 
-        $component = Livewire::actingAs($actor)->test(Index::class);
+        $component = Livewire::actingAs($actor)
+            ->test(Index::class)
+            ->call('setTab', 'aktivitas');
 
         $component->assertSee('Aktivitas Staf');
         $component->assertSee($actor->name);
@@ -216,10 +226,37 @@ class ReportsTest extends TestCase
         $this->travelTo(Carbon::parse('2026-09-10 10:00:00', 'Asia/Jakarta'));
 
         $component = Livewire::actingAs($this->superAdmin())->test(Index::class);
+        $this->assertMatchesRegularExpression('/wire:click="setPeriod\(\'month\'\)"\s+aria-pressed="true"/', $component->html());
+
+        $component->call('setPeriod', 'today')
+            ->assertSee('aria-pressed="true"', false);
+        $this->assertMatchesRegularExpression('/wire:click="setPeriod\(\'today\'\)"\s+aria-pressed="true"/', $component->html());
+        $this->assertMatchesRegularExpression('/wire:click="setPeriod\(\'month\'\)"\s+aria-pressed="false"/', $component->html());
+
+        $component->call('setPeriod', 'week')
+            ->assertSee('aria-pressed="true"', false);
+        $this->assertMatchesRegularExpression('/wire:click="setPeriod\(\'week\'\)"\s+aria-pressed="true"/', $component->html());
+
         $component->call('setPeriod', 'last_month');
 
         $this->assertSame('2026-08-01', $component->get('from'));
         $this->assertSame('2026-08-31', $component->get('to'));
+        $this->assertMatchesRegularExpression('/wire:click="setPeriod\(\'last_month\'\)"\s+aria-pressed="true"/', $component->html());
+    }
+
+    public function test_custom_date_range_does_not_highlight_a_preset(): void
+    {
+        $this->travelTo(Carbon::parse('2026-09-10 10:00:00', 'Asia/Jakarta'));
+
+        $component = Livewire::actingAs($this->superAdmin())
+            ->test(Index::class)
+            ->set('from', '2026-09-02')
+            ->set('to', '2026-09-08');
+
+        foreach (['today', 'week', 'month', 'last_month'] as $preset) {
+            $pattern = '/wire:click="setPeriod\(\''.$preset.'\'\)"\s+aria-pressed="false"/';
+            $this->assertMatchesRegularExpression($pattern, $component->html());
+        }
     }
 
     public function test_invalid_period_shows_error(): void

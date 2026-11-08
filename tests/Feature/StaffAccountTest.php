@@ -58,19 +58,29 @@ class StaffAccountTest extends TestCase
         ])->assertForbidden();
     }
 
-    public function test_create_staff_rejected_when_staff_limit_reached(): void
+    public function test_super_admin_can_create_staff_beyond_previous_limit(): void
     {
         $admin = $this->superAdmin();
-        User::factory()->count(4)->create(['role' => User::ROLE_STAFF, 'is_active' => true]);
+        User::factory()->count(5)->create(['role' => User::ROLE_STAFF, 'is_active' => true]);
+
+        $this->actingAs($admin)->get('/staff')
+            ->assertOk()
+            ->assertSee('Tambah Staf')
+            ->assertDontSee('Batas Staf aktif sudah terpenuhi')
+            ->assertDontSee('Maks. 4');
 
         $this->actingAs($admin)->post(route('staff.store'), [
             'name' => 'Staf Baru',
             'email' => 'stafbaru@example.com',
             'password' => 'secret123',
             'password_confirmation' => 'secret123',
-        ])->assertRedirect()->assertSessionHas('error');
+        ])->assertRedirect()->assertSessionHas('success');
 
-        $this->assertDatabaseMissing('users', ['email' => 'stafbaru@example.com']);
+        $this->assertDatabaseHas('users', [
+            'email' => 'stafbaru@example.com',
+            'role' => User::ROLE_STAFF,
+            'is_active' => true,
+        ]);
     }
 
     public function test_super_admin_can_toggle_staff_active_status(): void
@@ -113,6 +123,25 @@ class StaffAccountTest extends TestCase
         $this->assertTrue($admin->fresh()->is_active);
     }
 
+    public function test_super_admin_can_activate_another_super_admin(): void
+    {
+        $admin = $this->superAdmin();
+        $otherAdmin = User::factory()->create([
+            'role' => User::ROLE_SUPER_ADMIN,
+            'is_active' => false,
+        ]);
+
+        $this->actingAs($admin)->get('/staff')
+            ->assertOk()
+            ->assertSee('Aktifkan');
+
+        $this->actingAs($admin)->post(route('staff.toggle-active'), [
+            'user_id' => $otherAdmin->id,
+        ])->assertRedirect()->assertSessionHas('success');
+
+        $this->assertTrue($otherAdmin->fresh()->is_active);
+    }
+
     public function test_staff_cannot_toggle_active_status(): void
     {
         $staff = User::factory()->create(['role' => User::ROLE_STAFF, 'is_active' => true]);
@@ -125,9 +154,10 @@ class StaffAccountTest extends TestCase
         $this->assertTrue($other->fresh()->is_active);
     }
 
-    public function test_toggling_active_would_break_staff_limit_is_rejected(): void
+    public function test_super_admin_can_activate_staff_beyond_previous_limit(): void
     {
         $admin = $this->superAdmin();
+        User::factory()->count(4)->create(['role' => User::ROLE_STAFF, 'is_active' => true]);
         $staff = User::factory()->create(['role' => User::ROLE_STAFF, 'is_active' => false]);
 
         $this->actingAs($admin)->post(route('staff.toggle-active'), [

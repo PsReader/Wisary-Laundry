@@ -4,10 +4,11 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportExportController;
 use App\Http\Controllers\StaffAccountController;
 use App\Http\Controllers\StaffPasswordResetController;
-use App\Livewire\Orders\CancelledOrders;
+use App\Livewire\AuditLogs\Index as AuditLogsIndex;
 use App\Livewire\Orders\Create;
 use App\Livewire\Orders\Index;
 use App\Livewire\Orders\Show;
+use App\Livewire\Reports\Index as ReportsIndex;
 use App\Models\Customer;
 use Illuminate\Support\Facades\Route;
 
@@ -20,12 +21,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders/create', Create::class)->name('orders.create');
 
     Route::middleware('super.admin')->group(function () {
-        Route::get('/orders/cancelled', CancelledOrders::class)->name('orders.cancelled');
-        Route::get('/reports', App\Livewire\Reports\Index::class)->name('reports');
+        Route::get('/reports', ReportsIndex::class)->name('reports');
         Route::get('/reports/export/orders', [ReportExportController::class, 'orders'])->name('reports.export.orders');
         Route::get('/reports/export/payments', [ReportExportController::class, 'payments'])->name('reports.export.payments');
         Route::get('/reports/export/customers', [ReportExportController::class, 'customers'])->name('reports.export.customers');
-        Route::get('/audit-logs', App\Livewire\AuditLogs\Index::class)->name('audit-logs');
+        Route::get('/audit-logs', AuditLogsIndex::class)->name('audit-logs');
     });
 
     Route::get('/orders/{order}', Show::class)->name('orders.show');

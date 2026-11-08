@@ -5,10 +5,9 @@
 
 @php
     $items = [
-        ['route' => 'dashboard', 'label' => 'Dasbor', 'icon' => 'M3 12l9-9 9 9M5 10v10h5v-6h4v6h5V10'],
+        ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'M3 12l9-9 9 9M5 10v10h5v-6h4v6h5V10'],
         ['route' => 'orders.create', 'label' => 'Buat Pesanan', 'icon' => 'M12 5v14M5 12h14'],
         ['route' => 'orders', 'label' => 'Daftar Pesanan', 'icon' => 'M4 6h16M4 12h16M4 18h16'],
-        ['route' => 'orders.cancelled', 'label' => 'Pesanan Batal', 'icon' => 'M6 18L18 6M6 6l12 12', 'super_admin' => true],
         ['route' => 'customers', 'label' => 'Pelanggan', 'icon' => 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM16 3.13a4 4 0 0 1 0 7.75'],
         ['route' => 'services', 'label' => 'Layanan & Harga', 'icon' => 'M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.83zM7 7h.01'],
         ['route' => 'reports', 'label' => 'Laporan', 'icon' => 'M4 19V5M4 19h16M8 15v-3M12 15V9M16 15v-5', 'super_admin' => true],

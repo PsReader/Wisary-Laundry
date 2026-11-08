@@ -106,33 +106,10 @@ class OrderCancellationTest extends TestCase
         $cancelled = Order::factory()->cancelled('Pelanggan mengundurkan diri')->create();
 
         $this->actingAs($staff)
-            ->get(route('orders'))
+            ->get(route('orders').'?tab=cancelled')
             ->assertOk()
-            ->assertSee($active->order_number)
             ->assertSee($cancelled->order_number)
             ->assertSee('Dibatalkan');
-    }
-
-    public function test_staff_cannot_access_cancelled_orders_page(): void
-    {
-        $this->actingAs($this->staff())
-            ->get(route('orders.cancelled'))
-            ->assertForbidden();
-    }
-
-    public function test_super_admin_can_list_cancelled_orders(): void
-    {
-        $staff = $this->staff();
-        $cancelled = Order::factory()->cancelled('Pembatalan oleh pelanggan')->create([
-            'cancelled_by' => $staff->id,
-        ]);
-
-        $this->actingAs($this->superAdmin())
-            ->get(route('orders.cancelled'))
-            ->assertOk()
-            ->assertSee($cancelled->order_number)
-            ->assertSee($cancelled->customer->name)
-            ->assertSee('Pembatalan oleh pelanggan');
     }
 
     public function test_restore_returns_order_to_diterima_and_preserves_cancellation_history(): void
@@ -215,25 +192,12 @@ class OrderCancellationTest extends TestCase
         $cancelled = Order::factory()->cancelled('Batal')->create();
 
         Livewire::actingAs($this->superAdmin())
-            ->test(CancelledOrders::class)
-            ->set('restoreOrderId', $cancelled->id)
+            ->test(\App\Livewire\Orders\Show::class, ['order' => $cancelled])
+            ->call('openRestore')
             ->call('submitRestore')
-            ->assertRedirect(route('orders.cancelled'))
+            ->assertRedirect(route('orders.show', $cancelled))
             ->assertSessionHas('success');
 
         $this->assertSame(Order::STATUS_DITERIMA, $cancelled->fresh()->status);
-    }
-
-    public function test_cancelled_orders_page_searches_by_order_number_or_customer(): void
-    {
-        $kept = Order::factory()->cancelled('Alasan A')->create();
-        $other = Order::factory()->cancelled('Alasan B')->create();
-
-        $component = Livewire::actingAs($this->superAdmin())
-            ->test(CancelledOrders::class)
-            ->set('search', $kept->customer->name);
-
-        $component->assertSee($kept->order_number);
-        $component->assertDontSee($other->order_number);
     }
 }

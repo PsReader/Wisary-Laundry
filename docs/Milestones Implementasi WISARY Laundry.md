@@ -3,7 +3,8 @@
 **Proyek:** WISARY Laundry  
 **Platform:** Web app mobile-first  
 **Teknologi:** Laravel, Blade, Livewire, Tailwind CSS, dan MySQL/MariaDB  
-**Dokumen acuan:** `laundry-spec.md` dan `wisary-laundry-design.md`
+**Dokumen acuan:** `Spesifikasi Final Aplikasi Manajemen Laundry.md` dan `Design System dan Hierarki UI WISARY Laundry.md`
+**Status sinkronisasi:** Checklist ini diperbarui agar mencerminkan implementasi aplikasi per 8 November 2026. `[x]` menunjukkan pekerjaan kode yang sudah tersedia; item QA manual dan infrastruktur tetap terbuka sampai benar-benar diverifikasi.
 
 ## Cara Menggunakan Dokumen Ini
 
@@ -37,7 +38,7 @@ Status yang digunakan:
 | 15 â€” Laporan dan Ekspor Data | [x] Selesai |
 | 16 â€” Audit Log, Keamanan, dan Perlindungan Data | [x] Selesai |
 | 17 â€” Backup, Reset Password, dan Kesiapan Produksi | [~] Sedang dikerjakan |
-| 18 â€” Pengujian Fungsional dan Mobile | [ ] Belum dikerjakan |
+| 18 â€” Pengujian Fungsional dan Mobile | [~] QA manual masih berjalan |
 | 19 â€” UAT dan Persiapan Launch | [ ] Belum dikerjakan |
 | 20 â€” Launch dan Pemeliharaan | [ ] Belum dikerjakan |
 
@@ -62,7 +63,7 @@ Menyiapkan project Laravel yang dapat dijalankan secara lokal dengan konfigurasi
 - [x] Menyiapkan format Rupiah di helper atau service khusus.
 - [x] Menyiapkan struktur folder dan standar penamaan.
 - [x] Menyiapkan Git repository dan branch utama.
-- [x] Membuat halaman health check sederhana.
+- [x] Menggunakan endpoint health check bawaan Laravel di `/up` (tidak ada endpoint `/health` kustom).
 
 ### Kriteria penerimaan
 
@@ -98,7 +99,8 @@ Membangun kerangka tampilan WISARY Laundry yang nyaman digunakan terutama melalu
 - [x] Menetapkan target sentuh minimal 48 Ã— 48 px pada mobile.
 - [x] Menetapkan breakpoint mobile, tablet, dan desktop.
 - [x] Memastikan layout satu kolom pada mobile.
-- [x] Menambahkan focus state dan keyboard navigation dasar.
+- [x] Menyediakan kontrol dan modal dengan label serta state dasar.
+- [ ] Menyelesaikan QA keyboard navigation dan focus-visible pada seluruh halaman (Milestone 18).
 
 ### Kriteria penerimaan
 
@@ -123,7 +125,7 @@ Membuat sistem login yang membedakan Super Admin dan Staf.
 - [x] Membuat logout.
 - [x] Membuat middleware autentikasi.
 - [x] Menambahkan role `super_admin` dan `staff`.
-- [x] Membuat pembatasan maksimal satu Super Admin dan empat Staf aktif.
+- [x] Tidak membatasi jumlah akun aktif; UI admin membuat akun Staf, akun Super Admin disiapkan melalui seeder/CLI.
 - [x] Membuat middleware atau policy untuk fitur Super Admin-only.
 - [x] Membuat halaman profil pengguna.
 - [x] Membuat perubahan password.
@@ -137,7 +139,7 @@ Membuat sistem login yang membedakan Super Admin dan Staf.
 - Pengguna dapat login dan logout.
 - User tanpa autentikasi tidak dapat membuka halaman internal.
 - Staf tidak dapat membuka fitur Super Admin-only melalui URL langsung.
-- Jumlah akun aktif mematuhi batas satu Super Admin dan empat Staf.
+- Jumlah akun aktif tidak dibatasi; setidaknya satu Super Admin harus tetap aktif.
 - Session timeout berfungsi.
 - Aktivitas login tercatat.
 
@@ -256,10 +258,12 @@ Membuat alur utama untuk menerima laundry dan menghasilkan pesanan baru.
 - [x] Memilih metode Diambil Pelanggan atau Diantar.
 - [x] Menampilkan nomor WhatsApp pelanggan.
 - [x] Menyimpan alamat delivery jika metode Diantar.
+- [x] Memvalidasi bahwa setiap layanan pesanan masih aktif saat disimpan.
 - [x] Membuat nomor pesanan berdasarkan nomor urut total dan tanggal.
 - [x] Menggunakan format seperti `370207092026`.
 - [x] Memastikan nomor pesanan unik dan tidak berubah.
 - [x] Menyimpan salinan nama layanan, tipe harga, harga, dan aturan harga pada detail pesanan.
+- [x] Mencatat pembayaran setelah pesanan dibuat melalui Dashboard atau detail pesanan (pembayaran bukan bagian dari form pembuatan).
 
 ### Kriteria penerimaan
 
@@ -267,6 +271,7 @@ Membuat alur utama untuk menerima laundry dan menghasilkan pesanan baru.
 - Satu pesanan dapat memiliki beberapa layanan.
 - Pesanan pickup tidak mewajibkan alamat delivery.
 - Pesanan delivery mewajibkan alamat delivery.
+- Layanan yang dinonaktifkan atau tidak valid ditolak dengan validasi dan tidak membuat pesanan.
 - Nomor pesanan terbentuk sesuai format yang ditetapkan.
 - Data pesanan tidak hilang ketika validasi gagal.
 
@@ -295,7 +300,7 @@ Menerapkan aturan harga kilogram, unit, minimum empat kilogram, pembulatan, dan 
 
 > **Ratifikasi 09 September 2026:** Penyesuaian harga final sengaja dibuat sebagai *pencatatan murni* (aplikasi hanya mencatat, bukan menghitung). Harga baru diterima apa adanya; alasan tetap wajib. UI penyesuaian dibangun pada Milestone 14 (halaman detail pesanan).
 
-> **Ratifikasi 29 September 2026:** Item di atas dikoreksi dari "Staf" menjadi "Super Admin". Kode (`OrderPolicy::adjustPrice`), Design System, dan `AuditLogTest` sudah membatasi penyesuaian harga final hanya untuk Super Admin; dua baris Spesifikasi yang sebelumnya memberi hak ini kepada Staf diselaraskan ke implementasi. Rujukan pelanggan, layanan, jumlah/berat, dan status laundry tetap milik Staf.
+> **Ratifikasi 29 September 2026:** Penyesuaian harga final hanya untuk Super Admin. Staf mengelola pelanggan dan membuat pesanan dengan layanan/berat/jumlah; status dan pembayaran tetap menjadi tindakan operasional. Implementasi saat ini tidak menyediakan edit item pesanan setelah dibuat.
 
 ### Kriteria penerimaan
 
@@ -467,6 +472,8 @@ Menyediakan pembatalan yang aman tanpa menghilangkan data historis.
 
 > **Keputusan (ratifikasi 09 September 2026):** Pesanan yang dipulihkan kembali ke status **Diterima** (memulai ulang proses; riwayat lama tetap tersimpan). Pembatalan **diblokir setelah serah terima** (Sudah Diambil/Sudah Diantar). Daftar pesanan batal + pemulihan tersedia di halaman admin `/orders/cancelled` (nav "Pesanan Batal", hanya Super Admin, pencarian per no. pesanan/pelanggan); item "Menampilkan pesanan batal pada laporan" dijadwalkan ke Milestone 15 seiring laporan resmi. Pembatalan dan pemulihan dicatat di status history maupun audit log (`order.cancelled` / `order.restored`).
 
+> **Pembaruan 8 November 2026:** Pesanan batal kini menjadi tab **Pesanan Batal** pada daftar `/orders`; route dan menu terpisah `/orders/cancelled` sudah tidak digunakan. Pemulihan tersedia di detail pesanan.
+
 ---
 
 ## Milestone 14 â€” Daftar Pesanan, Detail, dan Dashboard
@@ -477,14 +484,9 @@ Menyediakan tampilan operasional untuk memantau seluruh aktivitas laundry.
 
 ### Pekerjaan
 
-- [x] Membuat dashboard KPI.
-- [x] Menampilkan pesanan hari ini.
-- [x] Menampilkan pesanan yang sedang diproses
-- [x] Menampilkan pesanan siap diambil.
-- [x] Menampilkan pesanan delivery.
-- [x] Menampilkan pesanan belum lunas.
-- [x] Menampilkan pesanan terlambat.
-- [x] Menampilkan pesanan belum diserahterimakan.
+- [x] Membuat dashboard KPI: Pesanan Hari Ini, Sedang Diproses, Siap Diambil, Belum Lunas, dan Terlambat.
+- [x] Menampilkan Pendapatan Hari Ini hanya kepada Super Admin.
+- [x] Menampilkan daftar Menunggu Serah Terima dan Belum Lunas.
 - [x] Membuat daftar pesanan dengan pencarian (nomor, nama, nomor WhatsApp).
 - [x] Menambahkan filter status, pembayaran, metode serah terima, dan tanggal.
 - [x] Membuat halaman detail pesanan.
@@ -494,6 +496,8 @@ Menyediakan tampilan operasional untuk memantau seluruh aktivitas laundry.
 - [x] Membuat timeline status, pembayaran, refund, dan handover.
 - [x] Membuat tampilan kartu untuk mobile.
 - [x] Membuat tabel responsif untuk desktop.
+- [x] Menyembunyikan KPI pendapatan dari render halaman Staf, bukan sekadar menyamarkannya dengan CSS.
+- [x] Tidak menambahkan grafik dashboard; keputusan tetap YAGNI.
 
 ### Kriteria penerimaan
 
@@ -527,6 +531,8 @@ Menyediakan laporan operasional dan ekspor data untuk kebutuhan owner.
 - [x] Menambahkan ekspor pesanan.
 - [x] Menambahkan ekspor pembayaran.
 - [x] Membatasi ekspor berdasarkan hak akses.
+- [x] Menyediakan filter periode preset dan tanggal khusus serta tab Keuangan, Pengiriman & Serah Terima, dan Aktivitas.
+- [x] Menghapus link ekspor CSV dari halaman Laporan; endpoint ekspor Super Admin tetap tersedia.
 
 ### Kriteria penerimaan
 
@@ -593,7 +599,7 @@ Menyiapkan aplikasi agar aman untuk digunakan dalam operasional nyata.
 - [x] Editor cutoff Kilat di Pengaturan — dibatalkan 15 Sep 2026 (konsep cutoff dihapus).
 - [ ] Menyimpan backup di lokasi terpisah dari server utama.
 - [ ] Menguji proses restore backup.
-- [x] Membuat alur reset password Super Admin (Breeze forgot-password via email + `StaffPasswordResetController` untuk akun staf dari sisi admin).
+- [x] Membuat reset password pengguna dengan OTP email 6 digit (berlaku 10 menit, maksimal 5 percobaan, rate limited) dan pengaturan ulang akun dari Manajemen Staf oleh Super Admin.
 - [x] Menentukan durasi session timeout (config `app.idle_timeout` = 30 menit + middleware `EnsureSessionIsActive` + `SessionTimeoutTest`).
 - [x] Memastikan logout menutup sesi dengan aman (logout dicatat ke `login_activities`).
 - [x] Menyiapkan login activity (login/gagal/logout tercatat; digabung di `/audit-logs` dan laporan aktivitas).
@@ -618,11 +624,13 @@ Menyiapkan aplikasi agar aman untuk digunakan dalam operasional nyata.
 
 ## Milestone 18 â€” Pengujian Fungsional dan Mobile
 
+### Status: Pengujian otomatis selesai; QA manual belum selesai
+
 ### Tujuan
 
 Memastikan seluruh alur bisnis berjalan benar pada desktop dan terutama perangkat mobile.
 
-> **Pembaruan 15 September 2026:** Item test otomatis di bawah ditandai selesai karena seluruhnya sudah memiliki file test yang lolos (203 test / 694 asersi). **Pembaruan 30 September 2026:** jumlah test sekarang 214 (753 asersi) — angka 203/694 di atas hanya sejarah; aturan mainnya adalah "seluruh file test lolos". Sisa item adalah pengujian manual perangkat.
+> **Pembaruan 8 November 2026:** Seluruh test otomatis lulus pada pemeriksaan terakhir: 210 test / 782 assertions (`php artisan test`). Angka ini adalah snapshot pemeriksaan terakhir, bukan jaminan untuk perubahan berikutnya. Sisa pekerjaan milestone ini adalah QA manual pada perangkat, keyboard, kontras, dan pemulihan validasi.
 
 ### Pekerjaan
 

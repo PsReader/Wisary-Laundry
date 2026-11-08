@@ -1,21 +1,47 @@
 <div class="space-y-4">
     @if (auth()->user()->isSuperAdmin())
         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-            <p class="text-sm text-neutral-600">
-                Layanan nonaktif tidak muncul pada pesanan baru, tetapi riwayat pesanan lama tetap tersimpan.
-            </p>
-            <x-button wire:click="create">Tambah Layanan</x-button>
+            <div class="flex-1">
+                <p class="text-sm text-neutral-600">
+                    Layanan nonaktif tidak muncul pada pesanan baru, tetapi riwayat pesanan lama tetap tersimpan.
+                </p>
+            </div>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <div class="w-full sm:w-64">
+                    <x-input
+                        type="search"
+                        wire:model.live.debounce.300ms="search"
+                        placeholder="Cari layanan atau kategori..."
+                        autocomplete="off"
+                    />
+                </div>
+                <x-button wire:click="create">Tambah Layanan</x-button>
+            </div>
+        </div>
+    @else
+        <div class="w-full sm:max-w-xs">
+            <x-input
+                type="search"
+                wire:model.live.debounce.300ms="search"
+                label="Cari layanan"
+                placeholder="Nama atau kategori..."
+                autocomplete="off"
+            />
         </div>
     @endif
 
     <x-card>
         @if ($this->services->isEmpty())
             <div class="py-12 text-center">
-                <p class="text-neutral-500">Belum ada layanan terdaftar.</p>
-                @if (auth()->user()->isSuperAdmin())
-                    <div class="mt-4 flex justify-center">
-                        <x-button wire:click="create">Tambah Layanan Pertama</x-button>
-                    </div>
+                @if (trim($search) === '')
+                    <p class="text-neutral-500">Belum ada layanan terdaftar.</p>
+                    @if (auth()->user()->isSuperAdmin())
+                        <div class="mt-4 flex justify-center">
+                            <x-button wire:click="create">Tambah Layanan Pertama</x-button>
+                        </div>
+                    @endif
+                @else
+                    <p class="text-neutral-500">Tidak ada layanan yang cocok dengan pencarian "<strong>{{ $search }}</strong>".</p>
                 @endif
             </div>
         @else
@@ -58,6 +84,8 @@
                     </tbody>
                 </table>
             </div>
+
+            <x-pagination :paginator="$this->services" label="layanan" />
         @endif
     </x-card>
 

@@ -18,9 +18,7 @@
         'readyForPickup' => Order::where('status', Order::STATUS_SIAP_DIAMBIL)
             ->where('handover_status', Order::HANDOVER_BELUM_DISERAHKAN)
             ->count(),
-        'unpaid' => Order::whereIn('payment_status', [Order::PAYMENT_BELUM_LUNAS, Order::PAYMENT_LUNAS_SEBAGIAN])
-            ->where('status', '!=', Order::STATUS_DIBATALKAN)
-            ->count(),
+        'unpaid' => Order::unpaid()->count(),
         'late' => Order::where('estimated_completion_at', '<', $now)
             ->where('handover_status', Order::HANDOVER_BELUM_DISERAHKAN)
             ->where('status', '!=', Order::STATUS_DIBATALKAN)
@@ -30,7 +28,7 @@
     ];
 @endphp
 
-<x-app-layout title="Dasbor" :breadcrumbs="[['label' => 'Dasbor']]">
+<x-app-layout title="Dashboard" :breadcrumbs="[['label' => 'Dashboard']]">
     <x-slot name="headerActions">
         <x-button href="{{ route('orders.create') }}">Buat Pesanan</x-button>
     </x-slot>

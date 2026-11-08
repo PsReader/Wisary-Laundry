@@ -146,37 +146,31 @@
                     <p class="text-sm text-neutral-500">Belum ada layanan — pilih layanan di bawah.</p>
                 @endforelse
 
-                <div class="rounded-xl border border-dashed border-primary-700/40 bg-primary-50/50 p-4 space-y-4">
-                    <div>
-                        <x-label required>Tambah layanan</x-label>
-                        <p class="mt-1 text-xs text-neutral-600">Layanan yang sudah dipilih dinonaktifkan.</p>
-                    </div>
+                <div class="rounded-xl border border-dashed border-primary-700/40 bg-primary-50/50 p-4 space-y-3">
+                    <x-input
+                        type="search"
+                        wire:model.live.debounce.400ms="service_search"
+                        label="Cari layanan"
+                        placeholder="Nama atau kategori layanan"
+                        autocomplete="off"
+                    />
 
-                    @foreach ($this->groupedServices as $category => $services)
-                        @php
-                            $available = collect($services)->reject(fn ($s) => $this->serviceSelected($s['id']));
-                        @endphp
-                        @if ($available->isNotEmpty())
-                            <div>
-                                <p class="text-xs font-semibold uppercase tracking-wide text-neutral-500">{{ $category }}</p>
-                                <div class="mt-1.5 flex gap-2 flex-nowrap overflow-x-auto scrollbar-chip pb-1 -mb-1 sm:flex-wrap sm:overflow-visible sm:pb-0">
-                                    @foreach ($services as $service)
-                                        @php $used = $this->serviceSelected($service['id']); @endphp
-                                        <button
-                                            type="button"
-                                            wire:click="addService({{ $service['id'] }})"
-                                            @disabled($used)
-                                            class="flex items-center gap-1.5 rounded-full border px-3 py-2 min-h-12 text-sm transition-colors shrink-0 sm:flex-1 sm:min-w-[8rem] {{ $used ? 'border-neutral-100 opacity-40 cursor-not-allowed' : 'border-neutral-200 bg-white hover:border-primary-700 hover:bg-primary-50' }}"
-                                        >
-                                            <span class="font-medium text-neutral-950">{{ $service['name'] }}</span>
-                                            <span class="text-xs text-neutral-500">{{ $service['price_label'] }}</span>
-                                            <span class="text-xs font-bold uppercase {{ $service['unit'] === \App\Models\Service::PRICING_TYPE_KG ? 'bg-primary-100 text-primary-800' : 'bg-neutral-100 text-neutral-600' }} px-1.5 py-0.5 rounded">{{ $service['unit'] }}</span>
-                                        </button>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
-                    @endforeach
+                    <div class="space-y-2">
+                        @forelse ($this->serviceResults as $service)
+                            <button
+                                type="button"
+                                wire:click="addService({{ $service->id }})"
+                                wire:key="service-option-{{ $service->id }}"
+                                class="w-full min-h-12 text-left rounded-lg border border-neutral-200 bg-white px-4 py-3 hover:border-primary-700 hover:bg-primary-50 transition-colors"
+                            >
+                                <p class="font-medium text-neutral-950">{{ $service->name }}</p>
+                                <p class="text-sm text-neutral-600">{{ $service->category }} · {{ $service->price_label }} · {{ $service->pricing_type === \App\Models\Service::PRICING_TYPE_KG ? 'per kilogram' : 'per unit' }}</p>
+                            </button>
+                        @empty
+                            <p class="text-sm text-neutral-500">Tidak ada layanan yang cocok atau semua layanan sudah dipilih.</p>
+                        @endforelse
+
+                    </div>
                 </div>
 
                 @error('items')
@@ -207,35 +201,24 @@
                 </div>
 
                 @if ($method === \App\Models\Order::METHOD_DIANTAR)
-                    <div>
-                        <x-label for="delivery_address" required>Alamat pengantaran</x-label>
-                        <textarea
-                            id="delivery_address"
-                            wire:model.blur="delivery_address"
-                            rows="3"
-                            class="mt-1.5 w-full rounded-lg border bg-white px-3 py-2.5 min-h-12 text-base sm:text-sm text-neutral-950 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-offset-0 transition {{ $errors->first('delivery_address') ? 'border-danger-700 focus:ring-danger-700' : 'border-neutral-300 focus:ring-primary-700' }}"
-                            placeholder="Alamat lengkap tujuan pengantaran"
-                        ></textarea>
-                        <p class="mt-1 text-xs text-neutral-500">Pengantaran tidak dikenakan biaya tambahan.</p>
-                        @if ($errors->first('delivery_address'))
-                            <p class="mt-1 text-xs text-danger-700" role="alert">{{ $errors->first('delivery_address') }}</p>
-                        @endif
-                    </div>
+                    <x-textarea
+                        label="Alamat pengantaran"
+                        required
+                        wire:model.blur="delivery_address"
+                        rows="3"
+                        placeholder="Alamat lengkap tujuan pengantaran"
+                        helptext="Pengantaran tidak dikenakan biaya tambahan."
+                        :error="$errors->first('delivery_address')"
+                    />
                 @endif
 
-                <div>
-                    <x-label for="notes">Catatan pesanan</x-label>
-                    <textarea
-                        id="notes"
-                        wire:model.blur="notes"
-                        rows="3"
-                        class="mt-1.5 w-full rounded-lg border bg-white px-3 py-2.5 min-h-12 text-base sm:text-sm text-neutral-950 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-offset-0 transition {{ $errors->first('notes') ? 'border-danger-700 focus:ring-danger-700' : 'border-neutral-300 focus:ring-primary-700' }}"
-                        placeholder="Catatan tambahan untuk pesanan ini (opsional)"
-                    ></textarea>
-                    @if ($errors->first('notes'))
-                        <p class="mt-1 text-xs text-danger-700" role="alert">{{ $errors->first('notes') }}</p>
-                    @endif
-                </div>
+                <x-textarea
+                    label="Catatan pesanan"
+                    wire:model.blur="notes"
+                    rows="3"
+                    placeholder="Catatan tambahan untuk pesanan ini (opsional)"
+                    :error="$errors->first('notes')"
+                />
             </div>
         </x-card>
 
@@ -281,30 +264,18 @@
                     helptext="Awali dengan 08 dan 8–13 digit angka."
                     :error="$errors->first('customer_whatsapp')"
                 />
-                <div>
-                    <x-label for="customer_address">Alamat utama</x-label>
-                    <textarea
-                        id="customer_address"
-                        wire:model.blur="customer_address"
-                        rows="3"
-                        class="mt-1.5 w-full rounded-lg border bg-white px-3 py-2.5 min-h-12 text-base sm:text-sm text-neutral-950 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-offset-0 transition {{ $errors->first('customer_address') ? 'border-danger-700 focus:ring-danger-700' : 'border-neutral-300 focus:ring-primary-700' }}"
-                    ></textarea>
-                    @if ($errors->first('customer_address'))
-                        <p class="mt-1 text-xs text-danger-700" role="alert">{{ $errors->first('customer_address') }}</p>
-                    @endif
-                </div>
-                <div>
-                    <x-label for="customer_notes">Catatan pelanggan</x-label>
-                    <textarea
-                        id="customer_notes"
-                        wire:model.blur="customer_notes"
-                        rows="3"
-                        class="mt-1.5 w-full rounded-lg border bg-white px-3 py-2.5 min-h-12 text-base sm:text-sm text-neutral-950 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-offset-0 transition {{ $errors->first('customer_notes') ? 'border-danger-700 focus:ring-danger-700' : 'border-neutral-300 focus:ring-primary-700' }}"
-                    ></textarea>
-                    @if ($errors->first('customer_notes'))
-                        <p class="mt-1 text-xs text-danger-700" role="alert">{{ $errors->first('customer_notes') }}</p>
-                    @endif
-                </div>
+                <x-textarea
+                    label="Alamat utama"
+                    wire:model.blur="customer_address"
+                    rows="3"
+                    :error="$errors->first('customer_address')"
+                />
+                <x-textarea
+                    label="Catatan pelanggan"
+                    wire:model.blur="customer_notes"
+                    rows="3"
+                    :error="$errors->first('customer_notes')"
+                />
             </div>
 
             <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">

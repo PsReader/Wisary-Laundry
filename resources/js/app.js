@@ -1,9 +1,6 @@
-import Alpine from 'alpinejs';
-
-window.Alpine = Alpine;
-
-Alpine.start();
-
+// Alpine is bundled and started by Livewire (@livewireScripts). Starting a second
+// instance here makes it skip nodes already initialised, which silently unbinds
+// wire:submit and leaves forms doing a native browser submit.
 document.addEventListener('DOMContentLoaded', () => {
     // Mobile drawer navigation
     const drawer = document.querySelector('[data-drawer]');

@@ -19,7 +19,7 @@
         <div class="code">404</div>
         <h1 class="title">Halaman Tidak Ditemukan</h1>
         <p class="desc">Alamat halaman yang Anda buka tidak tersedia atau sudah dipindahkan.</p>
-        <a class="btn" href="{{ route('dashboard') }}">Ke Dasbor</a>
+        <a class="btn" href="{{ route('dashboard') }}">Ke Dashboard</a>
     </div>
 </body>
 </html>

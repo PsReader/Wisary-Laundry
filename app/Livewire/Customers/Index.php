@@ -52,6 +52,11 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
+
     public function render(): View
     {
         return view('livewire.customers.index');

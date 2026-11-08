@@ -25,10 +25,6 @@ class StaffAccountController extends Controller
             'password' => ['required', 'confirmed', Password::min(8)],
         ]);
 
-        if (! User::accountSlotAvailable(User::ROLE_STAFF)) {
-            return back()->with('error', 'Batas Staf aktif sudah terpenuhi (4 akun). Nonaktifkan akun lain terlebih dahulu.');
-        }
-
         $user = User::query()->create([
             'name' => $validated['name'],
             'email' => $validated['email'],
@@ -66,14 +62,8 @@ class StaffAccountController extends Controller
 
         $willBeActive = ! $user->is_active;
 
-        if ($willBeActive) {
-            if (! User::accountSlotAvailable($user->role)) {
-                return back()->with('error', 'Slot akun aktif untuk peran ini sudah penuh.');
-            }
-        } else {
-            if ($user->isSuperAdmin() && User::activeSuperAdminCount() <= 1) {
-                return back()->with('error', 'Super Admin harus tetap memiliki minimal satu akun aktif.');
-            }
+        if (! $willBeActive && $user->isSuperAdmin() && User::activeSuperAdminCount() <= 1) {
+            return back()->with('error', 'Super Admin harus tetap memiliki minimal satu akun aktif.');
         }
 
         $user->update(['is_active' => $willBeActive]);

@@ -217,6 +217,23 @@ class OrderCreationTest extends TestCase
         $this->assertSame(0, Order::count());
     }
 
+    public function test_inactive_service_is_rejected_with_validation_error(): void
+    {
+        $service = Service::factory()->weightBased()->create(['is_active' => false]);
+        $customer = Customer::factory()->create();
+
+        Livewire::actingAs($this->staff())
+            ->test(Create::class)
+            ->set('customer_id', $customer->id)
+            ->set('items', [
+                ['service_id' => $service->id, 'actual_weight' => '2', 'quantity' => 1, 'note' => ''],
+            ])
+            ->call('save')
+            ->assertHasErrors(['items.0.service_id']);
+
+        $this->assertSame(0, Order::count());
+    }
+
     public function test_form_state_is_preserved_when_validation_fails(): void
     {
         $service = Service::factory()->weightBased()->create(['price' => 5000]);

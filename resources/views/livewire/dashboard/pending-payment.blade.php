@@ -9,31 +9,17 @@
                     <p class="text-xs text-neutral-500">№ {{ $order->order_number }}</p>
                     <p class="font-semibold text-neutral-950">{{ $order->customer->name }}</p>
                     <div class="mt-1 flex flex-wrap items-center gap-2">
-                        <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold {{ $order->payment_status === \App\Models\Order::PAYMENT_BELUM_LUNAS ? 'bg-warning-100 text-warning-700' : 'bg-warning-100 text-warning-700' }}">
-                            {{ \App\Models\Order::paymentLabel($order->payment_status) }}
-                        </span>
-                        <span class="text-xs text-neutral-500">Total {{ format_rupiah($order->total_price) }}</span>
+                        <x-badge :status="\App\Models\Order::paymentLabel($order->payment_status)" />
+                        <span class="text-xs text-neutral-500">Total {{ format_rupiah((float) $order->total_price) }}</span>
                     </div>
                     <p class="mt-1 text-sm font-semibold text-danger-700">Sisa tagihan: {{ format_rupiah($order->remainingAmount) }}</p>
                 </div>
             </div>
 
             <div class="flex flex-wrap justify-end gap-2">
-                <button
-                    type="button"
-                    wire:click="startPayment({{ $order->id }})"
-                    class="inline-flex items-center justify-center rounded-lg bg-primary-700 px-3 py-2.5 min-h-12 text-sm font-semibold text-white transition-colors hover:bg-primary-800"
-                >
-                    Catat Pembayaran
-                </button>
+                <x-button wire:click="startPayment({{ $order->id }})">Catat Pembayaran</x-button>
                 @if ($paidNetCents > 0)
-                    <button
-                        type="button"
-                        wire:click="startRefund({{ $order->id }})"
-                        class="inline-flex items-center justify-center rounded-lg bg-white border border-neutral-300 px-3 py-2.5 min-h-12 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50"
-                    >
-                        Kirim Refund
-                    </button>
+                    <x-button variant="secondary" wire:click="startRefund({{ $order->id }})">Kirim Refund</x-button>
                 @endif
             </div>
 
@@ -46,7 +32,7 @@
                             <span class="text-neutral-500 hidden group-open:inline">Tutup</span>
                         </summary>
                         <ol class="mt-3 space-y-2">
-                            @forelse ($order->payments->sortByDesc('received_at') as $payment)
+                            @foreach ($order->payments->sortByDesc('received_at') as $payment)
                                 <li class="flex items-baseline justify-between gap-3 rounded-lg bg-neutral-50 px-3 py-2">
                                     <div class="min-w-0">
                                         <p class="text-sm font-medium text-success-700">Bayar {{ format_rupiah($payment->amount) }}</p>
@@ -59,10 +45,9 @@
                                         @endif
                                     </div>
                                 </li>
-                            @empty
-                            @endforelse
+                            @endforeach
 
-                            @forelse ($order->refunds->sortByDesc('refunded_at') as $refund)
+                            @foreach ($order->refunds->sortByDesc('refunded_at') as $refund)
                                 <li class="flex items-baseline justify-between gap-3 rounded-lg bg-danger-50/60 px-3 py-2">
                                     <div class="min-w-0">
                                         <p class="text-sm font-medium text-danger-700">Refund {{ format_rupiah($refund->amount) }}</p>
@@ -75,8 +60,7 @@
                                         @endif
                                     </div>
                                 </li>
-                            @empty
-                            @endforelse
+                            @endforeach
                         </ol>
                     </details>
                 </div>
@@ -102,122 +86,7 @@
         </div>
     @endif
 
-    <x-modal name="payment-modal" :show="false" focusable>
-        <form wire:submit="submitPayment" class="p-6">
-            <h2 class="text-xl font-semibold text-primary-900">Catat Pembayaran</h2>
-            @if ($paymentOrderId)
-                @php $paymentOrder = \App\Models\Order::find($paymentOrderId); @endphp
-                @if ($paymentOrder)
-                    <p class="mt-1 text-sm text-neutral-600">№ {{ $paymentOrder->order_number }} — {{ $paymentOrder->customer->name }}</p>
-                @endif
-            @endif
+    @include('partials.payment-modal')
 
-            <div class="mt-5 space-y-4">
-                <x-input
-                    type="number"
-                    wire:model.blur="paymentAmount"
-                    label="Jumlah bayar"
-                    required
-                    min="1"
-                    step="1000"
-                    placeholder="40000"
-                    helptext="Maksimal sisa tagihan pesanan."
-                    :error="$errors->first('paymentAmount')"
-                />
-                <div>
-                    <x-label for="payment_method" required>Metode pembayaran</x-label>
-                    <select
-                        id="payment_method"
-                        wire:model.blur="paymentMethod"
-                        required
-                        class="mt-1.5 w-full rounded-lg border bg-white px-3 py-2.5 min-h-12 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-offset-0 transition {{ $errors->first('paymentMethod') ? 'border-danger-700 focus:ring-danger-700' : 'border-neutral-300 focus:ring-primary-700' }}"
-                    >
-                        @foreach ($this->paymentMethods as $value => $label)
-                            <option value="{{ $value }}">{{ $label }}</option>
-                        @endforeach
-                    </select>
-                    @if ($errors->first('paymentMethod'))
-                        <p class="mt-1 text-xs text-danger-700" role="alert">{{ $errors->first('paymentMethod') }}</p>
-                    @endif
-                </div>
-                <div>
-                    <x-label for="payment_note">Catatan (opsional)</x-label>
-                    <textarea
-                        id="payment_note"
-                        wire:model.blur="paymentNote"
-                        rows="2"
-                        class="mt-1.5 w-full rounded-lg border bg-white px-3 py-2.5 min-h-12 text-sm text-neutral-950 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-offset-0 transition {{ $errors->first('paymentNote') ? 'border-danger-700 focus:ring-danger-700' : 'border-neutral-300 focus:ring-primary-700' }}"
-                    ></textarea>
-                    @if ($errors->first('paymentNote'))
-                        <p class="mt-1 text-xs text-danger-700" role="alert">{{ $errors->first('paymentNote') }}</p>
-                    @endif
-                </div>
-            </div>
-
-            <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-                <x-button type="button" variant="secondary" x-data @click="$dispatch('close-modal', {})">Batal</x-button>
-                <x-button type="submit" class="sm:min-w-32" wire:loading.attr="disabled">Simpan Pembayaran</x-button>
-            </div>
-        </form>
-    </x-modal>
-
-    <x-modal name="refund-modal" :show="false" focusable>
-        <form wire:submit="submitRefund" class="p-6">
-            <h2 class="text-xl font-semibold text-primary-900">Kirim Refund</h2>
-            @if ($refundOrderId)
-                @php $refundOrder = \App\Models\Order::find($refundOrderId); @endphp
-                @if ($refundOrder)
-                    <p class="mt-1 text-sm text-neutral-600">№ {{ $refundOrder->order_number }} — {{ $refundOrder->customer->name }}</p>
-                @endif
-            @endif
-
-            <div class="mt-5 space-y-4">
-                <x-input
-                    type="number"
-                    wire:model.blur="refundAmount"
-                    label="Jumlah refund"
-                    required
-                    min="1"
-                    step="1000"
-                    placeholder="40000"
-                    helptext="Maksimal total yang sudah dibayar."
-                    :error="$errors->first('refundAmount')"
-                />
-                <div>
-                    <x-label for="refund_reason" required>Alasan refund</x-label>
-                    <textarea
-                        id="refund_reason"
-                        wire:model.blur="refundReason"
-                        rows="3"
-                        class="mt-1.5 w-full rounded-lg border bg-white px-3 py-2.5 min-h-12 text-sm text-neutral-950 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-offset-0 transition {{ $errors->first('refundReason') ? 'border-danger-700 focus:ring-danger-700' : 'border-neutral-300 focus:ring-primary-700' }}"
-                        placeholder="Contoh: kelebihan bayar, pembatalan layanan"
-                    ></textarea>
-                    @if ($errors->first('refundReason'))
-                        <p class="mt-1 text-xs text-danger-700" role="alert">{{ $errors->first('refundReason') }}</p>
-                    @endif
-                </div>
-                <div>
-                    <x-label for="refund_method" required>Metode refund</x-label>
-                    <select
-                        id="refund_method"
-                        wire:model.blur="refundMethod"
-                        required
-                        class="mt-1.5 w-full rounded-lg border bg-white px-3 py-2.5 min-h-12 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-offset-0 transition {{ $errors->first('refundMethod') ? 'border-danger-700 focus:ring-danger-700' : 'border-neutral-300 focus:ring-primary-700' }}"
-                    >
-                        @foreach ($this->paymentMethods as $value => $label)
-                            <option value="{{ $value }}">{{ $label }}</option>
-                        @endforeach
-                    </select>
-                    @if ($errors->first('refundMethod'))
-                        <p class="mt-1 text-xs text-danger-700" role="alert">{{ $errors->first('refundMethod') }}</p>
-                    @endif
-                </div>
-            </div>
-
-            <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-                <x-button type="button" variant="secondary" x-data @click="$dispatch('close-modal', {})">Batal</x-button>
-                <x-button type="submit" class="sm:min-w-32" wire:loading.attr="disabled">Simpan Refund</x-button>
-            </div>
-        </form>
-    </x-modal>
+    @include('partials.refund-modal')
 </div>

@@ -4,13 +4,19 @@ namespace App\Livewire\Services;
 
 use App\Models\Service;
 use App\Support\Audit;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class Index extends Component
 {
+    use WithPagination;
+
+    public string $search = '';
+
     public string $formMode = 'create';
 
     public string $name = '';
@@ -42,18 +48,31 @@ class Index extends Component
         ];
     }
 
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
     public function render(): View
     {
         return view('livewire.services.index');
     }
 
     #[Computed]
-    public function services()
+    public function services(): LengthAwarePaginator
     {
         return Service::query()
+            ->when(trim($this->search) !== '', function ($query) {
+                $like = '%'.trim($this->search).'%';
+
+                $query->where(function ($q) use ($like) {
+                    $q->where('name', 'like', $like)
+                        ->orWhere('category', 'like', $like);
+                });
+            })
             ->orderBy('category')
             ->orderBy('name')
-            ->get();
+            ->paginate(10);
     }
 
     #[Computed]

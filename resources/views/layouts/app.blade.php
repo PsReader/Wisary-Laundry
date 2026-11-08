@@ -21,13 +21,13 @@
         <div class="min-h-full flex flex-col lg:flex-row">
 
             {{-- Desktop Sidebar --}}
-            <aside class="hidden lg:flex lg:flex-col lg:w-[248px] lg:shrink-0 bg-primary-800 text-white">
+            <aside class="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:flex lg:w-[248px] lg:flex-col bg-primary-800 text-white">
                 <div class="px-3 py-4 border-b border-primary-700/40">
                     <a href="{{ route('dashboard') }}" class="block">
                         <img src="{{ asset('images/wisary-logo-sidebar.svg') }}" alt="WISARY Laundry" class="w-full">
                     </a>
                 </div>
-                <div class="flex flex-col flex-1 overflow-y-auto">
+                <div class="flex flex-1 flex-col">
                     <x-partials.nav-items />
                 </div>
                 <div class="p-3 border-t border-primary-700/40 space-y-2">
@@ -89,7 +89,7 @@
             </div>
 
             {{-- Main Content --}}
-            <div class="flex-1 flex flex-col min-w-0">
+            <div class="flex-1 flex flex-col min-w-0 lg:ml-[248px]">
                 {{-- Top Bar (mobile) --}}
                 <header class="lg:hidden sticky top-0 z-40 bg-primary-800 text-white">
                     <div class="flex items-center justify-between px-4 h-16">
@@ -108,9 +108,11 @@
                 <div class="border-b border-neutral-100 bg-white">
                     <div class="px-4 py-4 lg:px-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div class="min-w-0">
-                            @if (! empty($breadcrumbs))
+                            {{-- trail = ancestors only; the last crumb always repeats the <h1> below --}}
+                            @php $trail = array_slice($breadcrumbs, 0, -1); @endphp
+                            @if (! empty($trail))
                                 <nav class="mb-1 text-xs text-neutral-500" aria-label="Breadcrumb">
-                                    @foreach ($breadcrumbs as $index => $crumb)
+                                    @foreach ($trail as $index => $crumb)
                                         @if ($index > 0)
                                             <span class="mx-1 text-neutral-300">/</span>
                                         @endif
@@ -148,7 +150,7 @@
                 <nav class="lg:hidden sticky bottom-0 z-30 bg-white border-t border-neutral-100 shadow-lg" aria-label="Navigasi bawah">
                     @php
                         $bottom = [
-                            ['route' => 'dashboard', 'label' => 'Dasbor', 'icon' => 'M3 12l9-9 9 9M5 10v10h5v-6h4v6h5V10'],
+                            ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'M3 12l9-9 9 9M5 10v10h5v-6h4v6h5V10'],
                             ['route' => 'orders', 'label' => 'Pesanan', 'icon' => 'M4 6h16M4 12h16M4 18h16'],
                             ['route' => 'orders.create', 'label' => 'Buat', 'icon' => 'M12 5v14M5 12h14'],
                             ['route' => 'customers', 'label' => 'Pelanggan', 'icon' => 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z'],

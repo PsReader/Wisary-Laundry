@@ -6,6 +6,7 @@ use App\Support\Audit;
 use App\Support\StatusFlow;
 use Database\Factories\OrderFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,6 +25,7 @@ use Illuminate\Validation\ValidationException;
 ])]
 class Order extends Model
 {
+    // Nilai status dan metode yang disimpan di database.
     // Status pengerjaan
     public const STATUS_DITERIMA = 'diterima';
 
@@ -63,6 +65,7 @@ class Order extends Model
     /** @use HasFactory<OrderFactory> */
     use HasFactory;
 
+    // Konfigurasi model dan relasi.
     protected function casts(): array
     {
         return [
@@ -125,6 +128,17 @@ class Order extends Model
     }
 
     /**
+     * Pesanan yang masih punya tagihan. Pesanan batal dikecualikan: uang
+     * tidak bisa ditagih lagi di sana.
+     */
+    public function scopeUnpaid(Builder $query): void
+    {
+        $query->whereIn('payment_status', self::unpaidPaymentStatuses())
+            ->where('status', '!=', self::STATUS_DIBATALKAN);
+    }
+
+    // Saldo dan pencatatan uang. Semua perbandingan nominal dilakukan dalam sen.
+    /**
      * Sisa tagihan yang belum dibayar, memperhitungkan refund.
      */
     protected function remainingAmount(): Attribute
@@ -164,6 +178,7 @@ class Order extends Model
         return (int) round((float) $this->refunds()->sum('amount') * 100);
     }
 
+    // Transaksi pembayaran/refund dan perubahan pesanan.
     /**
      * Mencatat pembayaran. Pembayaran tidak boleh melebihi sisa tagihan.
      */
@@ -571,6 +586,7 @@ class Order extends Model
         });
     }
 
+    // Daftar nilai dan label untuk tampilan.
     public static function statuses(): array
     {
         return [
@@ -592,6 +608,16 @@ class Order extends Model
             self::PAYMENT_LUNAS,
             self::PAYMENT_DIKEMBALIKAN,
         ];
+    }
+
+    /**
+     * Status pembayaran yang masih menyisakan tagihan.
+     *
+     * @return array<int, string>
+     */
+    public static function unpaidPaymentStatuses(): array
+    {
+        return [self::PAYMENT_BELUM_LUNAS, self::PAYMENT_LUNAS_SEBAGIAN];
     }
 
     public static function handoverStatuses(): array
