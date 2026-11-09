@@ -94,6 +94,35 @@ class StatusTransitionTest extends TestCase
             ->assertSet('statusFilter', '');
     }
 
+    public function test_handed_over_order_shows_handover_status_instead_of_ready(): void
+    {
+        $ready = Order::factory()->ready()->pickup()->create(['order_number' => '5555090926']);
+        $taken = Order::factory()->handedOver(Order::HANDOVER_SUDAH_DIAMBIL)->pickup()->create(['order_number' => '6666090926']);
+
+        $this->assertSame('Siap Diambil', $ready->displayStatusLabel());
+        $this->assertSame('Sudah Diambil', $taken->displayStatusLabel());
+
+        Livewire::actingAs($this->staff())
+            ->test(Index::class)
+            ->assertSee('Semua (2)')
+            ->assertSee('Siap Diambil (1)')
+            ->call('setStatusFilter', Order::STATUS_SIAP_DIAMBIL)
+            ->assertSee($ready->order_number)
+            ->assertDontSee($taken->order_number);
+
+        $this->actingAs($this->staff())
+            ->get(route('orders.show', $taken))
+            ->assertSee('Sudah Diambil')
+            ->assertDontSee('Siap Diambil');
+    }
+
+    public function test_unknown_sort_column_falls_back_instead_of_erroring(): void
+    {
+        $this->actingAs($this->staff())
+            ->get(route('orders', ['sortBy' => 'not_a_column']))
+            ->assertOk();
+    }
+
     public function test_date_quick_chips_set_expected_ranges(): void
     {
         $this->travelTo(Carbon::parse('2026-09-09 10:00:00', 'Asia/Jakarta'));

@@ -28,7 +28,7 @@ class ReportExportController extends Controller
                 $order->customer?->name ?? '-',
                 $order->customer?->whatsapp ?? '',
                 $order->received_at?->format('d/m/Y H:i'),
-                Order::statusLabel((string) $order->status),
+                $order->displayStatusLabel(),
                 Order::handoverLabel((string) $order->handover_status),
                 Order::paymentLabel((string) $order->payment_status),
                 Order::methodLabel((string) $order->method),

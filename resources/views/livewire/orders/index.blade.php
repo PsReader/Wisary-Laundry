@@ -65,7 +65,7 @@
                     wire:click="setStatusFilter('')"
                     class="flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-2.5 min-h-12 text-sm font-semibold transition-colors {{ $this->statusFilter === '' ? 'border-primary-700 bg-primary-700 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-primary-700 hover:text-primary-700' }}"
                 >
-                    Semua ({{ array_sum($this->statusCounts) }})
+                    Semua ({{ $this->activeCount }})
                 </button>
                 @foreach (\App\Models\Order::statuses() as $status)
                     @if (($this->statusCounts[$status] ?? 0) > 0)
@@ -170,11 +170,11 @@
                             <a href="{{ route('orders.show', $order) }}" class="font-semibold text-primary-700 hover:underline" onclick="event.stopPropagation()">№ {{ $order->order_number }}</a>
                         </td>
                         <td class="py-3 pr-4">
-                            <p class="font-medium">{{ $order->customer->name }}</p>
+                            <p class="font-medium"><a href="{{ route('customers.show', $order->customer) }}" class="hover:text-primary-700 hover:underline" onclick="event.stopPropagation()">{{ $order->customer->name }}</a></p>
                             <p class="text-xs text-neutral-500">{{ $order->customer->whatsapp }}</p>
                         </td>
                         <td class="py-3 pr-4">
-                            <x-badge :status="\App\Models\Order::statusLabel($order->status)" />
+                            <x-badge :status="$order->displayStatusLabel()" />
                         </td>
                         <td class="py-3 pr-4">
                             <x-badge :status="\App\Models\Order::paymentLabel($order->payment_status)" />
@@ -211,7 +211,7 @@
                     <p class="shrink-0 font-semibold text-primary-900">{{ format_rupiah((float) $order->total_price) }}</p>
                 </div>
                 <div class="mt-3 flex flex-wrap gap-1.5">
-                    <x-badge :status="\App\Models\Order::statusLabel($order->status)" />
+                    <x-badge :status="$order->displayStatusLabel()" />
                     <x-badge :status="\App\Models\Order::paymentLabel($order->payment_status)" />
                     <x-badge color="bg-neutral-100 text-neutral-700">{{ \App\Models\Order::methodLabel($order->method) }}</x-badge>
                 </div>

@@ -68,6 +68,10 @@ class StaffAccountController extends Controller
 
         $user->update(['is_active' => $willBeActive]);
 
+        if (! $willBeActive) {
+            $user->forceFill(['remember_token' => null])->save();
+        }
+
         Audit::record($request->user(), $willBeActive ? 'user.activated' : 'user.deactivated', $user, [
             'is_active' => ! $willBeActive,
         ], [

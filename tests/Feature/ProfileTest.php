@@ -96,4 +96,42 @@ class ProfileTest extends TestCase
 
         $this->assertNotNull($user->fresh());
     }
+
+    public function test_last_active_super_admin_cannot_delete_their_account(): void
+    {
+        $admin = User::factory()->create([
+            'role' => User::ROLE_SUPER_ADMIN,
+            'is_active' => true,
+        ]);
+
+        $response = $this
+            ->actingAs($admin)
+            ->from('/profile')
+            ->delete('/profile', ['password' => 'password']);
+
+        $response
+            ->assertSessionHasErrorsIn('userDeletion', 'password')
+            ->assertRedirect('/profile');
+
+        $this->assertNotNull($admin->fresh());
+    }
+
+    public function test_super_admin_can_delete_when_another_active_admin_exists(): void
+    {
+        $admin = User::factory()->create([
+            'role' => User::ROLE_SUPER_ADMIN,
+            'is_active' => true,
+        ]);
+        User::factory()->create([
+            'role' => User::ROLE_SUPER_ADMIN,
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($admin)
+            ->delete('/profile', ['password' => 'password'])
+            ->assertRedirect('/');
+
+        $this->assertGuest();
+        $this->assertNull($admin->fresh());
+    }
 }

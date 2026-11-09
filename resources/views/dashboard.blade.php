@@ -2,7 +2,6 @@
     use App\Models\Order;
 
     $todayStart = now()->startOfDay();
-    $now = now();
 
     $isSuperAdmin = auth()->user()->isSuperAdmin();
 
@@ -19,7 +18,7 @@
             ->where('handover_status', Order::HANDOVER_BELUM_DISERAHKAN)
             ->count(),
         'unpaid' => Order::unpaid()->count(),
-        'late' => Order::where('estimated_completion_at', '<', $now)
+        'late' => Order::where('estimated_completion_at', '<', $todayStart)
             ->where('handover_status', Order::HANDOVER_BELUM_DISERAHKAN)
             ->where('status', '!=', Order::STATUS_DIBATALKAN)
             ->count(),

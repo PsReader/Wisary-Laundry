@@ -23,13 +23,26 @@ class Csv
             $handle = fopen('php://output', 'w');
 
             fwrite($handle, self::BOM);
-            fputcsv($handle, $headers, self::DELIMITER);
+            fputcsv($handle, $headers, self::DELIMITER, '"', '');
 
             foreach ($rows as $row) {
-                fputcsv($handle, is_array($row) ? $row : iterator_to_array($row), self::DELIMITER);
+                $row = is_array($row) ? $row : iterator_to_array($row);
+                fputcsv($handle, array_map(fn ($value) => self::sanitize($value), $row), self::DELIMITER, '"', '');
             }
 
             fclose($handle);
         };
+    }
+
+    /**
+     * Cegah formula injection: Excel mengeksekusi sel yang diawali karakter ini.
+     */
+    private static function sanitize(mixed $value): mixed
+    {
+        if (! is_string($value)) {
+            return $value;
+        }
+
+        return preg_match('/^[=+\-@\t\r]/', $value) === 1 ? "'".$value : $value;
     }
 }

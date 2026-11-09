@@ -166,4 +166,17 @@ class StaffAccountTest extends TestCase
 
         $this->assertTrue($staff->fresh()->is_active);
     }
+
+    public function test_deactivating_staff_clears_remember_token(): void
+    {
+        $admin = $this->superAdmin();
+        $staff = User::factory()->create(['role' => User::ROLE_STAFF, 'is_active' => true]);
+        $staff->forceFill(['remember_token' => 'persistent-token'])->save();
+
+        $this->actingAs($admin)->post(route('staff.toggle-active'), [
+            'user_id' => $staff->id,
+        ])->assertRedirect()->assertSessionHas('success');
+
+        $this->assertNull($staff->fresh()->remember_token);
+    }
 }

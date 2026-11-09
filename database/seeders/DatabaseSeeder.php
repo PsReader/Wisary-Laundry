@@ -14,7 +14,10 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AuthSeeder::class,
             ServiceSeeder::class,
-            DevSeeder::class,
         ]);
+
+        if (! app()->environment('production')) {
+            $this->call(DevSeeder::class);
+        }
     }
 }

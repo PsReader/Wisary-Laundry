@@ -6,8 +6,8 @@
         <div class="rounded-lg border border-neutral-200 bg-white p-4 space-y-3">
             <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
-                    <p class="text-xs text-neutral-500">№ {{ $order->order_number }}</p>
-                    <p class="font-semibold text-neutral-950">{{ $order->customer->name }}</p>
+                    <p class="text-xs text-neutral-500">№ <a href="{{ route('orders.show', $order) }}" class="text-primary-700 hover:underline">{{ $order->order_number }}</a></p>
+                    <p class="font-semibold text-neutral-950"><a href="{{ route('customers.show', $order->customer) }}" class="hover:text-primary-700 hover:underline">{{ $order->customer->name }}</a></p>
                     <div class="mt-1 flex flex-wrap items-center gap-2">
                         <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold {{ $order->method === \App\Models\Order::METHOD_DIANTAR ? 'bg-info-100 text-info-700' : 'bg-neutral-100 text-neutral-700' }}">
                             {{ $methodLabel }}

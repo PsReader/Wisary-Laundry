@@ -254,6 +254,34 @@ class AuditLogTest extends TestCase
         $this->assertTrue($feed->every(fn ($row) => $row['userId'] === (int) $admin->id));
     }
 
+    public function test_user_filter_applies_before_per_source_limit(): void
+    {
+        $admin = $this->admin();
+        $target = $this->staff();
+        $customer = Customer::factory()->create();
+
+        $older = $this->order($target);
+        $older->setCreatedAt(now()->subDay());
+        $older->save();
+
+        Order::factory()->count(501)->create([
+            'created_by' => $admin->id,
+            'customer_id' => $customer->id,
+        ]);
+
+        $feed = AuditFeed::feed(
+            now()->subDays(2),
+            now()->endOfDay(),
+            $target->id,
+            AuditFeed::GROUP_ORDER_CREATED,
+        );
+
+        $this->assertTrue(
+            $feed->contains(fn ($row) => $row['orderNumber'] === $older->order_number),
+            'Aktivitas lama pengguna hilang karena limit diterapkan sebelum filter.',
+        );
+    }
+
     public function test_feed_filters_by_period(): void
     {
         $admin = $this->admin();

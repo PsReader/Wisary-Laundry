@@ -63,7 +63,7 @@
                             @foreach ($orders as $order)
                                 <tr class="border-b border-neutral-100 last:border-0">
                                     <td class="py-3 pr-4 text-neutral-600">{{ $order->received_at->translatedFormat('d M Y') }}</td>
-                                    <td class="py-3 pr-4 font-medium">{{ $order->order_number }}</td>
+                                    <td class="py-3 pr-4 font-medium"><a href="{{ route('orders.show', $order) }}" class="text-primary-700 hover:underline">{{ $order->order_number }}</a></td>
                                     <td class="py-3 pr-4 text-neutral-600">
                                         @php
                                             $names = $order->items->map(fn ($item) => $item->service_name.($item->quantity > 1 ? ' (x'.$item->quantity.')' : ''))->values();
@@ -71,7 +71,7 @@
                                         {{ $names->take(2)->join(', ') }}{{ $names->count() > 2 ? ', …' : '' }}
                                     </td>
                                     <td class="py-3 pr-4 font-medium">{{ format_rupiah((float) $order->total_price) }}</td>
-                                    <td class="py-3 pr-4"><x-badge :status="\App\Models\Order::statusLabel($order->status)" /></td>
+                                    <td class="py-3 pr-4"><x-badge :status="$order->displayStatusLabel()" /></td>
                                     <td class="py-3"><x-badge :status="\App\Models\Order::paymentLabel($order->payment_status)" /></td>
                                 </tr>
                             @endforeach

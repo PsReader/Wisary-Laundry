@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Livewire\Orders\CancelledOrders;
 use App\Livewire\Orders\Show;
 use App\Models\AuditLog;
 use App\Models\Order;
@@ -192,7 +191,7 @@ class OrderCancellationTest extends TestCase
         $cancelled = Order::factory()->cancelled('Batal')->create();
 
         Livewire::actingAs($this->superAdmin())
-            ->test(\App\Livewire\Orders\Show::class, ['order' => $cancelled])
+            ->test(Show::class, ['order' => $cancelled])
             ->call('openRestore')
             ->call('submitRestore')
             ->assertRedirect(route('orders.show', $cancelled))

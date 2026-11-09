@@ -206,16 +206,20 @@ class Order extends Model
             ]);
         }
 
-        if ($amountCents > (int) round($this->remainingAmount * 100)) {
-            throw ValidationException::withMessages([
-                'amount' => 'Pembayaran tidak boleh melebihi sisa tagihan.',
-            ]);
-        }
-
         $actor = $user?->id ?? auth()->id();
 
         DB::transaction(function () use ($amountCents, $paymentMethod, $note, $actor) {
-            $this->payments()->create([
+            // Kunci baris pesanan agar dua pembayaran bersamaan tidak dapat
+            // melewati sisa tagihan (check-then-write harus atomik).
+            $locked = self::query()->whereKey($this->getKey())->lockForUpdate()->firstOrFail();
+
+            if ($amountCents > (int) round($locked->remainingAmount * 100)) {
+                throw ValidationException::withMessages([
+                    'amount' => 'Pembayaran tidak boleh melebihi sisa tagihan.',
+                ]);
+            }
+
+            $locked->payments()->create([
                 'user_id' => $actor,
                 'amount' => $amountCents / 100,
                 'payment_method' => $paymentMethod,
@@ -223,10 +227,12 @@ class Order extends Model
                 'note' => trim((string) $note) ?: null,
             ]);
 
-            $this->paid_amount = (int) round((float) $this->payments()->sum('amount') * 100) / 100;
-            $this->payment_method = $paymentMethod;
-            $this->payment_status = $this->recomputePaymentStatus();
-            $this->save();
+            $locked->paid_amount = (int) round((float) $locked->payments()->sum('amount') * 100) / 100;
+            $locked->payment_method = $paymentMethod;
+            $locked->payment_status = $locked->recomputePaymentStatus();
+            $locked->save();
+
+            $this->setRawAttributes($locked->getAttributes(), true);
         });
 
         return $this;
@@ -651,6 +657,14 @@ class Order extends Model
             self::HANDOVER_SUDAH_DIANTAR => 'Sudah Diantar',
             default => $handoverStatus,
         };
+    }
+
+    /** Status akhir pesanan: serah terima menggantikan status pengerjaan. */
+    public function displayStatusLabel(): string
+    {
+        return $this->handover_status === self::HANDOVER_BELUM_DISERAHKAN
+            ? self::statusLabel($this->status)
+            : self::handoverLabel($this->handover_status);
     }
 
     public static function paymentLabel(string $paymentStatus): string

@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -47,6 +49,12 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+
+        if ($user->isSuperAdmin() && User::activeSuperAdminCount() <= 1) {
+            throw ValidationException::withMessages([
+                'password' => 'Super Admin terakhir tidak dapat menghapus akunnya. Aktifkan Super Admin lain terlebih dahulu.',
+            ])->errorBag('userDeletion');
+        }
 
         Auth::logout();
 

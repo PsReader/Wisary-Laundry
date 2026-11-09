@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Livewire\Reports\Index;
 use App\Models\Customer;
 use App\Models\Order;
+use App\Models\OrderHandoverHistory;
 use App\Models\Payment;
 use App\Models\Service;
 use App\Models\User;
@@ -317,5 +318,55 @@ class ReportsTest extends TestCase
         $response->assertOk();
         $this->assertStringContainsString('Budi Santoso', $response->streamedContent());
         $this->assertStringContainsString($customer->whatsapp, $response->streamedContent());
+    }
+
+    public function test_handed_over_orders_listed_by_handover_date(): void
+    {
+        $this->travelTo(Carbon::parse('2026-08-25 10:00:00', 'Asia/Jakarta'));
+
+        $admin = $this->superAdmin();
+        $order = Order::factory()->ready()->pickup()->create();
+
+        $this->travelTo(Carbon::parse('2026-09-10 10:00:00', 'Asia/Jakarta'));
+
+        $order->recordHandover(OrderHandoverHistory::ACTION_SUDAH_DIAMBIL, user: $admin);
+
+        $component = Livewire::actingAs($admin)
+            ->test(Index::class)
+            ->call('setTab', 'pengiriman');
+
+        $component->assertSee($order->order_number);
+    }
+
+    public function test_handed_over_order_shows_handover_status_in_report(): void
+    {
+        $this->travelTo(Carbon::parse('2026-09-10 10:00:00', 'Asia/Jakarta'));
+
+        $admin = $this->superAdmin();
+        $order = Order::factory()->ready()->pickup()->create();
+        $order->recordHandover(OrderHandoverHistory::ACTION_SUDAH_DIAMBIL, user: $admin);
+
+        $component = Livewire::actingAs($admin)->test(Index::class);
+
+        $component->assertSee('Sudah Diambil');
+        $component->assertDontSee('Siap Diambil');
+    }
+
+    public function test_orders_export_uses_handover_status_for_handed_over_orders(): void
+    {
+        $this->travelTo(Carbon::parse('2026-09-10 10:00:00', 'Asia/Jakarta'));
+
+        $admin = $this->superAdmin();
+        $order = Order::factory()->ready()->pickup()->create();
+        $order->recordHandover(OrderHandoverHistory::ACTION_SUDAH_DIAMBIL, user: $admin);
+
+        $response = $this->actingAs($admin)
+            ->get(route('reports.export.orders', ['from' => '2026-09-01', 'to' => '2026-09-30']));
+
+        $response->assertOk();
+        $content = $response->streamedContent();
+
+        $this->assertStringContainsString('Sudah Diambil', $content);
+        $this->assertStringNotContainsString('Siap Diambil', $content);
     }
 }

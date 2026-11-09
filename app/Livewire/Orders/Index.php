@@ -3,7 +3,6 @@
 namespace App\Livewire\Orders;
 
 use App\Models\Order;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Computed;
@@ -67,11 +66,20 @@ class Index extends Component
             $query = $query->where('status', Order::STATUS_DIBATALKAN);
         } else {
             $query = $query->where('status', '!=', Order::STATUS_DIBATALKAN)
-                ->when($this->statusFilter, fn (Builder $q, string $s) => $q->where('status', $s));
+                ->when($this->statusFilter, function (Builder $q, string $s) {
+                    $q->where('status', $s);
+                    if ($s === Order::STATUS_SIAP_DIAMBIL) {
+                        $q->where('handover_status', Order::HANDOVER_BELUM_DISERAHKAN);
+                    }
+                });
         }
 
+        $sortBy = in_array($this->sortBy, ['received_at', 'order_number'], true)
+            ? $this->sortBy
+            : 'received_at';
+
         $orders = $query
-            ->orderBy($this->tab === 'cancelled' ? 'cancelled_at' : $this->sortBy, $this->tab === 'cancelled' ? 'desc' : ($this->sortDir === 'desc' ? 'desc' : 'asc'))
+            ->orderBy($this->tab === 'cancelled' ? 'cancelled_at' : $sortBy, $this->tab === 'cancelled' ? 'desc' : ($this->sortDir === 'desc' ? 'desc' : 'asc'))
             ->paginate(10);
 
         return view('livewire.orders.index', ['orders' => $orders]);
@@ -89,11 +97,23 @@ class Index extends Component
 
         return $this->baseQuery()
             ->where('status', '!=', Order::STATUS_DIBATALKAN)
+            ->where(function (Builder $q) {
+                $q->where('status', '!=', Order::STATUS_SIAP_DIAMBIL)
+                    ->orWhere('handover_status', Order::HANDOVER_BELUM_DISERAHKAN);
+            })
             ->selectRaw('status, count(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status')
             ->map(fn ($total) => (int) $total)
             ->all();
+    }
+
+    #[Computed]
+    public function activeCount(): int
+    {
+        return $this->baseQuery()
+            ->where('status', '!=', Order::STATUS_DIBATALKAN)
+            ->count();
     }
 
     public function hasFilters(): bool

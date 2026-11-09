@@ -196,9 +196,9 @@ class Index extends Component
         $receivedOrderIds = $receivedOrders->pluck('id');
 
         // 1. Jumlah pesanan per periode.
-        $ordersByStatus = $receivedOrders->countBy('status')
-            ->sortKeysDesc()
-            ->mapWithKeys(fn (int $count, string $status) => [Order::statusLabel($status) => $count]);
+        $ordersByStatus = $receivedOrders
+            ->countBy(fn (Order $order) => $order->displayStatusLabel())
+            ->sortKeysDesc();
 
         $ordersByDay = $receivedOrders->groupBy(fn (Order $order) => $order->received_at?->toDateString())
             ->map->count()
@@ -257,9 +257,20 @@ class Index extends Component
             ->orderBy('occurred_at')
             ->get();
 
-        // 6. Pesanan yang sudah diserahterimakan.
-        $handedOverOrders = $receivedOrders
-            ->where('handover_status', '!=', Order::HANDOVER_BELUM_DISERAHKAN)
+        // 6. Pesanan yang sudah diserahterimakan (menurut tanggal serah terima).
+        $handedOverOrderIds = $handoverEvents
+            ->whereIn('handover_action', [
+                OrderHandoverHistory::ACTION_SUDAH_DIAMBIL,
+                OrderHandoverHistory::ACTION_SUDAH_DIANTAR,
+            ])
+            ->pluck('order_id')
+            ->unique();
+
+        $handedOverOrders = Order::query()
+            ->whereIn('id', $handedOverOrderIds)
+            ->with('customer')
+            ->orderBy('id')
+            ->get()
             ->values();
 
         // 7. Pesanan dibatalkan (menurut waktu pembatalan).

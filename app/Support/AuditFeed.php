@@ -91,6 +91,7 @@ class AuditFeed
             $orders = Order::query()
                 ->with(['createdBy'])
                 ->whereBetween('created_at', [$from, $to])
+                ->when($userId !== null, fn ($query) => $query->where('created_by', $userId))
                 ->orderByDesc('created_at')
                 ->limit($limit)
                 ->get();
@@ -116,6 +117,7 @@ class AuditFeed
             $histories = OrderStatusHistory::query()
                 ->with(['user', 'order'])
                 ->whereBetween('created_at', [$from, $to])
+                ->when($userId !== null, fn ($query) => $query->where('user_id', $userId))
                 ->orderByDesc('created_at')
                 ->limit($limit)
                 ->get();
@@ -149,6 +151,7 @@ class AuditFeed
             $events = OrderHandoverHistory::query()
                 ->with(['recordedBy', 'order'])
                 ->whereBetween('occurred_at', [$from, $to])
+                ->when($userId !== null, fn ($query) => $query->where('recorded_by', $userId))
                 ->orderByDesc('occurred_at')
                 ->limit($limit)
                 ->get();
@@ -180,6 +183,7 @@ class AuditFeed
             $payments = Payment::query()
                 ->with(['user', 'order'])
                 ->whereBetween('received_at', [$from, $to])
+                ->when($userId !== null, fn ($query) => $query->where('user_id', $userId))
                 ->orderByDesc('received_at')
                 ->limit($limit)
                 ->get();
@@ -205,6 +209,7 @@ class AuditFeed
             $refunds = Refund::query()
                 ->with(['processedBy', 'order'])
                 ->whereBetween('refunded_at', [$from, $to])
+                ->when($userId !== null, fn ($query) => $query->where('processed_by', $userId))
                 ->orderByDesc('refunded_at')
                 ->limit($limit)
                 ->get();
@@ -230,6 +235,7 @@ class AuditFeed
             $adjustments = OrderPriceAdjustment::query()
                 ->with(['user', 'order'])
                 ->whereBetween('created_at', [$from, $to])
+                ->when($userId !== null, fn ($query) => $query->where('user_id', $userId))
                 ->orderByDesc('created_at')
                 ->limit($limit)
                 ->get();
@@ -257,12 +263,29 @@ class AuditFeed
             || $includesGroup(self::GROUP_SERVICE)
             || $includesGroup(self::GROUP_USER)
         ) {
-            $auditLogs = AuditLog::query()
+            $auditQuery = AuditLog::query()
                 ->with(['user'])
                 ->whereBetween('created_at', [$from, $to])
-                ->orderByDesc('created_at')
-                ->limit($limit)
-                ->get();
+                ->when($userId !== null, fn ($query) => $query->where('user_id', $userId));
+
+            // Filter grup harus ikut ke query agar baris yang cocok tidak
+            // terbuang oleh limit per sumber sebelum difilter di PHP.
+            if ($group !== null) {
+                $prefixes = array_keys(array_filter([
+                    'customer.' => self::GROUP_CUSTOMER,
+                    'service.' => self::GROUP_SERVICE,
+                    'user.' => self::GROUP_USER,
+                    'order.estimate' => self::GROUP_ORDER_ESTIMATE,
+                ], fn (string $value) => $value === $group));
+
+                $auditQuery->where(function ($query) use ($prefixes) {
+                    foreach ($prefixes as $prefix) {
+                        $query->orWhere('action', 'like', $prefix.'%');
+                    }
+                });
+            }
+
+            $auditLogs = $auditQuery->orderByDesc('created_at')->limit($limit)->get();
 
             foreach ($auditLogs as $log) {
                 $type = self::auditGroup($log->action);
@@ -288,12 +311,22 @@ class AuditFeed
             || $includesGroup(self::GROUP_LOGOUT)
             || $includesGroup(self::GROUP_LOGIN_FAILED)
         ) {
-            $activities = LoginActivity::query()
+            $loginQuery = LoginActivity::query()
                 ->with(['user'])
                 ->whereBetween('created_at', [$from, $to])
-                ->orderByDesc('created_at')
-                ->limit($limit)
-                ->get();
+                ->when($userId !== null, fn ($query) => $query->where('user_id', $userId));
+
+            if ($group !== null) {
+                $types = array_keys(array_filter([
+                    LoginActivity::TYPE_LOGIN => self::GROUP_LOGIN,
+                    LoginActivity::TYPE_LOGOUT => self::GROUP_LOGOUT,
+                    LoginActivity::TYPE_FAILED => self::GROUP_LOGIN_FAILED,
+                ], fn (string $value) => $value === $group));
+
+                $loginQuery->whereIn('type', $types);
+            }
+
+            $activities = $loginQuery->orderByDesc('created_at')->limit($limit)->get();
 
             foreach ($activities as $activity) {
                 $type = self::loginGroup($activity->type);

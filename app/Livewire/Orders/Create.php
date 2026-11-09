@@ -304,35 +304,39 @@ class Create extends Component
             $total += $subtotal;
         }
 
-        $order = DB::transaction(function () use ($preparedItems, $total, $now, $estimatedCompletion) {
-            $order = Order::create([
-                'order_number' => Order::nextOrderNumber($now),
-                'customer_id' => $this->customer_id,
-                'received_at' => $now,
-                'estimated_completion_at' => $estimatedCompletion,
-                'status' => Order::STATUS_DITERIMA,
-                'handover_status' => Order::HANDOVER_BELUM_DISERAHKAN,
-                'payment_status' => Order::PAYMENT_BELUM_LUNAS,
-                'method' => $this->method,
-                'delivery_address' => $this->method === Order::METHOD_DIANTAR ? trim((string) $this->delivery_address) : null,
-                'notes' => trim((string) $this->notes) ?: null,
-                'total_price' => $total,
-                'created_by' => auth()->id(),
-            ]);
+        // Dua pesanan yang dibuat bersamaan bisa membaca nomor urut yang sama;
+        // ulangi transaksi agar nomor terbaru terbaca ulang.
+        $order = retry(3, function () use ($preparedItems, $total, $now, $estimatedCompletion) {
+            return DB::transaction(function () use ($preparedItems, $total, $now, $estimatedCompletion) {
+                $order = Order::create([
+                    'order_number' => Order::nextOrderNumber($now),
+                    'customer_id' => $this->customer_id,
+                    'received_at' => $now,
+                    'estimated_completion_at' => $estimatedCompletion,
+                    'status' => Order::STATUS_DITERIMA,
+                    'handover_status' => Order::HANDOVER_BELUM_DISERAHKAN,
+                    'payment_status' => Order::PAYMENT_BELUM_LUNAS,
+                    'method' => $this->method,
+                    'delivery_address' => $this->method === Order::METHOD_DIANTAR ? trim((string) $this->delivery_address) : null,
+                    'notes' => trim((string) $this->notes) ?: null,
+                    'total_price' => $total,
+                    'created_by' => auth()->id(),
+                ]);
 
-            $order->statusHistories()->create([
-                'from_status' => null,
-                'to_status' => Order::STATUS_DITERIMA,
-                'user_id' => auth()->id(),
-                'note' => 'Pesanan diterima',
-            ]);
+                $order->statusHistories()->create([
+                    'from_status' => null,
+                    'to_status' => Order::STATUS_DITERIMA,
+                    'user_id' => auth()->id(),
+                    'note' => 'Pesanan diterima',
+                ]);
 
-            foreach ($preparedItems as $item) {
-                $order->items()->create($item);
-            }
+                foreach ($preparedItems as $item) {
+                    $order->items()->create($item);
+                }
 
-            return $order;
-        });
+                return $order;
+            });
+        }, 50);
 
         return redirect()->route('orders')
             ->with('success', "Pesanan {$order->order_number} berhasil dibuat.");

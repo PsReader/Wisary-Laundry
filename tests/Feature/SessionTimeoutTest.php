@@ -52,4 +52,19 @@ class SessionTimeoutTest extends TestCase
 
         $this->assertAuthenticated();
     }
+
+    public function test_deactivated_user_is_logged_out_on_next_request(): void
+    {
+        $user = $this->authenticatedUser();
+
+        $this->actingAs($user)->get('/dashboard')->assertOk();
+
+        $user->update(['is_active' => false]);
+
+        $this->get('/dashboard')
+            ->assertRedirect('/login')
+            ->assertSessionHas('status');
+
+        $this->assertGuest();
+    }
 }

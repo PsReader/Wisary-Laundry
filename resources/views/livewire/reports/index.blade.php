@@ -219,7 +219,13 @@
                                     <td class="py-3 px-4">
                                         <a href="{{ route('orders.show', $order) }}" class="font-semibold text-primary-700 hover:underline">№ {{ $order->order_number }}</a>
                                     </td>
-                                    <td class="py-3 px-4 text-neutral-700">{{ $order->customer?->name ?? '-' }}</td>
+                                    <td class="py-3 px-4 text-neutral-700">
+                                        @if ($order->customer)
+                                            <a href="{{ route('customers.show', $order->customer) }}" class="hover:text-primary-700 hover:underline">{{ $order->customer->name }}</a>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td class="py-3 px-4 text-right text-neutral-600">{{ format_rupiah((float) $order->total_price) }}</td>
                                     <td class="py-3 px-4 text-right text-neutral-600">{{ format_rupiah((float) $order->paid_amount) }}</td>
                                     <td class="py-3 px-4 text-right font-semibold text-danger-700">{{ format_rupiah($order->remainingAmount) }}</td>
@@ -262,7 +268,13 @@
                                     <td class="py-3 px-4">
                                         <a href="{{ route('orders.show', $order) }}" class="font-semibold text-primary-700 hover:underline">№ {{ $order->order_number }}</a>
                                     </td>
-                                    <td class="py-3 px-4 text-neutral-700">{{ $order->customer?->name ?? '-' }}</td>
+                                    <td class="py-3 px-4 text-neutral-700">
+                                        @if ($order->customer)
+                                            <a href="{{ route('customers.show', $order->customer) }}" class="hover:text-primary-700 hover:underline">{{ $order->customer->name }}</a>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td class="py-3 px-4 text-neutral-600">{{ $order->cancellation_reason }}</td>
                                     <td class="py-3 px-4 text-neutral-600">{{ $order->cancelledBy?->name ?? '-' }}</td>
                                     <td class="py-3 px-4 text-right text-xs text-neutral-500">{{ format_datetime_wib($order->cancelled_at) }}</td>
@@ -351,7 +363,13 @@
                                         <td class="py-3 px-4">
                                             <a href="{{ route('orders.show', $order) }}" class="font-semibold text-primary-700 hover:underline">№ {{ $order->order_number }}</a>
                                         </td>
-                                        <td class="py-3 px-4 text-neutral-700">{{ $order->customer?->name ?? '-' }}</td>
+                                        <td class="py-3 px-4 text-neutral-700">
+                                            @if ($order->customer)
+                                                <a href="{{ route('customers.show', $order->customer) }}" class="hover:text-primary-700 hover:underline">{{ $order->customer->name }}</a>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
                                         <td class="py-3 px-4">
                                             <x-badge :status="\App\Models\Order::handoverLabel($order->handover_status)">{{ \App\Models\Order::handoverLabel($order->handover_status) }}</x-badge>
                                         </td>

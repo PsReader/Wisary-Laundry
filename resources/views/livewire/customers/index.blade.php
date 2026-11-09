@@ -39,7 +39,7 @@
                         @foreach ($this->customers as $customer)
                             <tr class="border-b border-neutral-100 last:border-0">
                                 <td class="py-3 pr-4">
-                                    <p class="font-medium">{{ $customer->name }}</p>
+                                    <p class="font-medium"><a href="{{ route('customers.show', $customer) }}" class="text-primary-700 hover:underline">{{ $customer->name }}</a></p>
                                     <p class="text-xs text-neutral-500">{{ $customer->orders_count }} pesanan</p>
                                 </td>
                                 <td class="py-3 pr-4 text-neutral-600">{{ $customer->whatsapp }}</td>

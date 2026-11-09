@@ -10,7 +10,7 @@
     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
             <p class="text-sm text-neutral-600">
-                {{ $order->customer->name }}
+                <a href="{{ route('customers.show', $order->customer) }}" class="hover:text-primary-700 hover:underline">{{ $order->customer->name }}</a>
                 <a href="tel:+62{{ substr($order->customer->whatsapp, 1) }}" class="inline-flex items-center min-h-11 text-primary-700 hover:underline ml-1">{{ $order->customer->whatsapp }}</a>
             </p>
             <p class="mt-1 text-xs text-neutral-500">
@@ -23,9 +23,8 @@
                 <p class="text-2xl sm:text-3xl font-bold text-primary-900">{{ format_rupiah((float) $order->total_price) }}</p>
             </div>
             <div class="flex flex-wrap gap-2">
-                <x-badge :status="\App\Models\Order::statusLabel($order->status)" />
+                <x-badge :status="$order->displayStatusLabel()" />
                 <x-badge :status="\App\Models\Order::paymentLabel($order->payment_status)" />
-                <x-badge :status="\App\Models\Order::handoverLabel($order->handover_status)" />
                 <x-badge color="bg-neutral-100 text-neutral-700">{{ \App\Models\Order::methodLabel($order->method) }}</x-badge>
             </div>
         </div>

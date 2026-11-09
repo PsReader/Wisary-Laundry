@@ -6,8 +6,8 @@
         <div class="rounded-lg border border-neutral-200 bg-white p-4 space-y-3">
             <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
-                    <p class="text-xs text-neutral-500">№ {{ $order->order_number }}</p>
-                    <p class="font-semibold text-neutral-950">{{ $order->customer->name }}</p>
+                    <p class="text-xs text-neutral-500">№ <a href="{{ route('orders.show', $order) }}" class="text-primary-700 hover:underline">{{ $order->order_number }}</a></p>
+                    <p class="font-semibold text-neutral-950"><a href="{{ route('customers.show', $order->customer) }}" class="hover:text-primary-700 hover:underline">{{ $order->customer->name }}</a></p>
                     <div class="mt-1 flex flex-wrap items-center gap-2">
                         <x-badge :status="\App\Models\Order::paymentLabel($order->payment_status)" />
                         <span class="text-xs text-neutral-500">Total {{ format_rupiah((float) $order->total_price) }}</span>
