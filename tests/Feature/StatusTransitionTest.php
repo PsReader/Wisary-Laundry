@@ -143,6 +143,50 @@ class StatusTransitionTest extends TestCase
             ->assertDontSee($old->order_number);
     }
 
+    public function test_clicking_selected_date_quick_chip_clears_the_date_filter(): void
+    {
+        $this->travelTo(Carbon::parse('2026-09-09 10:00:00', 'Asia/Jakarta'));
+        $today = Order::factory()->received()->create(['order_number' => '3333090926']);
+        $old = Order::factory()->received()->create([
+            'order_number' => '4444080926',
+            'received_at' => Carbon::parse('2026-09-01 10:00:00', 'Asia/Jakarta'),
+        ]);
+
+        Livewire::actingAs($this->staff())
+            ->test(Index::class)
+            ->call('setDateFilter', 'today')
+            ->assertSet('receivedDateFilter', '2026-09-09')
+            ->assertSee($today->order_number)
+            ->assertDontSee($old->order_number)
+            ->call('setDateFilter', 'today')
+            ->assertSet('receivedDateFilter', '')
+            ->assertSet('recent7Filter', '')
+            ->assertSee($today->order_number)
+            ->assertSee($old->order_number);
+    }
+
+    public function test_clicking_selected_seven_day_chip_clears_the_date_filter(): void
+    {
+        $this->travelTo(Carbon::parse('2026-09-09 10:00:00', 'Asia/Jakarta'));
+        $recent = Order::factory()->received()->create(['order_number' => '3333090926']);
+        $old = Order::factory()->received()->create([
+            'order_number' => '4444080926',
+            'received_at' => Carbon::parse('2026-09-01 10:00:00', 'Asia/Jakarta'),
+        ]);
+
+        Livewire::actingAs($this->staff())
+            ->test(Index::class)
+            ->call('setDateFilter', '7d')
+            ->assertSet('recent7Filter', '7')
+            ->assertSee($recent->order_number)
+            ->assertDontSee($old->order_number)
+            ->call('setDateFilter', '7d')
+            ->assertSet('recent7Filter', '')
+            ->assertSet('receivedDateFilter', '')
+            ->assertSee($recent->order_number)
+            ->assertSee($old->order_number);
+    }
+
     public function test_reset_filters_clears_everything_and_hides_the_clear_action(): void
     {
         $order = Order::factory()->ready()->create(['order_number' => '5555090926']);

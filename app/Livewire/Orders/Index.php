@@ -173,8 +173,21 @@ class Index extends Component
 
     public function setDateFilter(string $range): void
     {
+        $isSelected = match ($range) {
+            'today' => $this->receivedDateFilter === now('Asia/Jakarta')->toDateString(),
+            'yesterday' => $this->receivedDateFilter === now('Asia/Jakarta')->subDay()->toDateString(),
+            '7d' => $this->recent7Filter === '7',
+            default => false,
+        };
+
         $this->recent7Filter = '';
         $this->receivedDateFilter = '';
+
+        if ($isSelected) {
+            $this->resetPage();
+
+            return;
+        }
 
         if ($range === 'today') {
             $this->receivedDateFilter = now('Asia/Jakarta')->toDateString();
